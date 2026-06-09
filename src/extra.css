@@ -1,11 +1,117 @@
 /* extra.css — components specific to the E91 demo.
  * Every color is sourced from a CSS variable in style.css; no hex literals. */
 
-/* Inputs + actions for the run-protocol panel */
+/* Scenario chip strip */
+.scenario-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.scenario-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-strong);
+  color: var(--ink-strong);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.scenario-chip:hover {
+  transform: translateY(-1px);
+}
+
+.scenario-chip:focus-visible {
+  outline: 2px solid var(--accent-3);
+  outline-offset: 3px;
+}
+
+.scenario-chip.is-active {
+  background: var(--mono-block-bg);
+  color: var(--mono-block-fg);
+  border-color: transparent;
+}
+
+.scenario-chip-emoji {
+  font-size: 1.1rem;
+}
+
+.scenario-card {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel-strong);
+}
+
+.scenario-card-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.scenario-card-emoji {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--mono-block-bg);
+  color: var(--mono-block-fg);
+  font-size: 1.3rem;
+}
+
+.scenario-card h3 {
+  margin: 0 0 4px;
+  color: var(--ink-strong);
+  font-size: 1.1rem;
+}
+
+.scenario-expectation {
+  margin: 8px 0 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.scenario-knob {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(0, 2.5fr) 70px;
+  gap: 14px;
+  align-items: center;
+}
+
+.scenario-knob input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.scenario-knob-value {
+  font-family: var(--mono);
+  text-align: right;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Inputs */
 .e91-inputs {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
   margin-top: 22px;
   align-items: end;
 }
@@ -36,12 +142,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--panel-strong);
   color: var(--ink-strong);
   cursor: pointer;
+  font-size: 0.92rem;
 }
 
 .e91-toggle input {
@@ -54,8 +161,55 @@
 .e91-actions {
   margin-top: 18px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.e91-actions .tab-button {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+
+.copy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-strong);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.copy-chip:hover {
+  background: var(--mono-block-bg);
+  color: var(--mono-block-fg);
+  border-color: transparent;
+}
+
+.copy-chip:focus-visible {
+  outline: 2px solid var(--accent-3);
+  outline-offset: 2px;
+}
+
+.copy-chip.copy-chip--ok {
+  background: rgba(19, 111, 99, 0.18);
+  color: var(--accent-4);
+  border-color: transparent;
+}
+
+[data-theme='dark'] .copy-chip.copy-chip--ok {
+  background: rgba(61, 217, 196, 0.18);
 }
 
 .e91-output {
@@ -64,10 +218,72 @@
   gap: 18px;
 }
 
-/* CHSH parameter gauge */
+/* Verdict block */
+.verdict {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel-strong);
+}
+
+.verdict--secure {
+  border-color: rgba(19, 111, 99, 0.4);
+  background: rgba(19, 111, 99, 0.08);
+}
+
+.verdict--compromised {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.verdict--inconclusive {
+  border-color: rgba(240, 200, 90, 0.4);
+  background: rgba(240, 200, 90, 0.1);
+}
+
+[data-theme='dark'] .verdict--secure {
+  background: rgba(61, 217, 196, 0.08);
+}
+
+.verdict-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.verdict-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--mono-block-bg);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.verdict-headline {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.verdict-summary {
+  margin: 2px 0 0;
+  line-height: 1.5;
+}
+
+.verdict-detail {
+  margin: 14px 0 0;
+  line-height: 1.6;
+  color: inherit;
+}
+
+/* CHSH gauge with CI band */
 .s-gauge {
-  margin-top: 4px;
-  padding: 18px 18px 30px;
+  padding: 18px 18px 34px;
   border: 1px solid var(--line);
   border-radius: 20px;
   background: var(--panel-strong);
@@ -88,7 +304,9 @@
 .s-gauge-fill {
   height: 100%;
   border-radius: 999px;
-  transition: width 320ms ease, background 320ms ease;
+  transition:
+    width 320ms ease,
+    background 320ms ease;
 }
 
 .s-gauge-fill--good {
@@ -97,6 +315,21 @@
 
 .s-gauge-fill--bad {
   background: linear-gradient(90deg, var(--accent-2), var(--accent-3));
+}
+
+.s-gauge-fill--meh {
+  background: linear-gradient(90deg, var(--accent-3), var(--accent));
+}
+
+.s-gauge-ci {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  border: 2px dashed var(--ink-strong);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0);
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .s-gauge-tick {
@@ -151,7 +384,7 @@
   white-space: nowrap;
 }
 
-/* Two-up summary cards under the gauge */
+/* Summary cards under the gauge */
 .e91-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -165,27 +398,40 @@
   background: var(--panel-strong);
 }
 
-.e91-side .mono-inline + .mono-inline,
-.e91-side .scenario-status--valid,
-.e91-side .scenario-status--invalid {
-  margin-top: 10px;
+.e91-side .mono-inline + .mono-inline {
+  margin-top: 8px;
 }
 
-/* Correlation table caption hidden visually but read by screen readers */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+/* Subheads */
+.subhead {
+  margin: 8px 0 0;
+  color: var(--ink-strong);
+  font-size: 1.05rem;
 }
 
+/* Correlations table */
 .corr-table {
-  min-width: 0;
+  min-width: 560px;
+}
+
+.corr-table td.mono-cell,
+.corr-table th[scope='col'] {
+  white-space: nowrap;
+}
+
+.corr-warn {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  border: 1px solid var(--warning-border);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.78rem;
 }
 
 /* Sifted key panel */
@@ -223,6 +469,48 @@
 
 .bit-cell--miss {
   background: var(--accent-2);
+}
+
+/* Transcript table */
+.transcript-table {
+  min-width: 720px;
+}
+
+.transcript-row--chsh td:first-child {
+  border-left: 3px solid var(--accent);
+}
+
+.transcript-row--key td:first-child {
+  border-left: 3px solid var(--accent-4);
+}
+
+.bucket-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bucket-tag--chsh {
+  background: rgba(11, 127, 171, 0.15);
+  color: var(--accent);
+}
+
+.bucket-tag--key {
+  background: rgba(19, 111, 99, 0.18);
+  color: var(--accent-4);
+}
+
+[data-theme='dark'] .bucket-tag--chsh {
+  background: rgba(77, 195, 247, 0.18);
+}
+
+[data-theme='dark'] .bucket-tag--key {
+  background: rgba(61, 217, 196, 0.18);
 }
 
 /* Bell-concepts grid */
@@ -345,7 +633,7 @@
   background: rgba(77, 195, 247, 0.08);
 }
 
-/* History list (real world) */
+/* History list */
 .hist-list {
   list-style: none;
   margin: 22px 0 0;
@@ -407,6 +695,76 @@
   font-size: 1.05rem;
 }
 
+/* Sources panel */
+.sources-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 22px;
+  align-items: start;
+}
+
+.refs-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.ref-row {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-strong);
+  display: grid;
+  gap: 4px;
+}
+
+.ref-row p {
+  margin: 0;
+}
+
+.ref-meta {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.ref-title {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ref-title:hover,
+.ref-title:focus-visible {
+  text-decoration: underline;
+}
+
+.ref-venue {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.caveat-box {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px dashed var(--warning-border);
+  border-radius: 16px;
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.caveat-box .hero-metric-label {
+  color: var(--warning-fg);
+}
+
+.caveat-box .panel-copy {
+  color: var(--warning-fg);
+}
+
 /* Footer */
 .footer-meta {
   display: grid;
@@ -430,7 +788,7 @@
   text-align: center;
 }
 
-/* Inline code (matches sibling repos) */
+/* Inline code */
 code {
   font-family: var(--mono);
   font-size: 0.92em;
@@ -453,6 +811,20 @@ code {
 .deployment-link:hover,
 .deployment-link:focus-visible {
   text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+  .scenario-knob {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-knob-value {
+    text-align: left;
+  }
+
+  .sources-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {
@@ -486,6 +858,11 @@ code {
   }
 
   .proto-step {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-card-head,
+  .verdict-head {
     grid-template-columns: 1fr;
   }
 }
