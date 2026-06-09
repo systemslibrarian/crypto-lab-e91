@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      (function () {
+        const saved = localStorage.getItem('theme');
+        document.documentElement.setAttribute('data-theme', saved ?? 'dark');
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="description"
+      content="E91 entanglement-based quantum key distribution — an interactive demo of Ekert's 1991 protocol. Detect eavesdroppers with Bell's inequality: classical correlations bound by |S| ≤ 2, quantum singlets reach Tsirelson's bound 2√2, an intercept-resend Eve collapses S back toward classical."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="E91 — Entanglement-Based QKD — crypto-lab" />
+    <meta
+      property="og:description"
+      content="Detect eavesdroppers with Bell's inequality. Run a CHSH test, watch |S| sit near Tsirelson's bound 2√2, then turn Eve on and watch S collapse toward 2."
+    />
+    <meta property="og:url" content="https://systemslibrarian.github.io/crypto-lab-e91/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="E91 — Entanglement-Based QKD — crypto-lab" />
+    <meta
+      name="twitter:description"
+      content="Ekert 1991. Singlet-state photon pairs, CHSH Bell test, intercept-resend Eve. Security from entanglement, not no-cloning."
+    />
+    <title>E91 — Entanglement-Based QKD — crypto-lab</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#playground-heading">Skip to content</a>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
