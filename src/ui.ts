@@ -881,6 +881,12 @@ function renderFooter(): HTMLElement {
 				<p class="panel-copy">Educational simulation of the standard textbook E91 model with selectable channel scenarios and statistical verdict. Idealized — see the "What this simulation does and does not model" note above for the limits.</p>
 			</div>
 		</div>
+		<p class="panel-copy">Related demos:
+			<a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-bb84/">crypto-lab-bb84</a> ·
+			<a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-shor/">crypto-lab-shor</a> ·
+			<a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-grover/">crypto-lab-grover</a> ·
+			<a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-pq-families/">crypto-lab-pq-families</a>
+		</p>
 		<p class="scripture">"So whether you eat or drink or whatever you do, do it all for the glory of God." — 1 Corinthians 10:31</p>
 	`;
 	return footer;
