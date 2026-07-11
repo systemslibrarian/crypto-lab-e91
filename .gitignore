@@ -3,5 +3,10 @@ dist
 *.local
 .DS_Store
 
+# Playwright
+/test-results/
+/playwright-report/
+/.pw-browsers/
+
 # scratchpads / external review notes
 chat.gpt

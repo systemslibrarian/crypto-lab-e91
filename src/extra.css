@@ -172,6 +172,12 @@
   border-color: transparent;
 }
 
+/* The dark theme's --accent is a light blue (#4dc3f7); white text on it is
+   only ~2:1. Use near-black text there so the primary action clears AA. */
+[data-theme="dark"] .e91-actions .tab-button {
+  color: #0b0912;
+}
+
 .copy-chip {
   display: inline-flex;
   align-items: center;
