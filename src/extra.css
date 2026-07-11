@@ -17,7 +17,7 @@
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   color: var(--ink-strong);
   font-weight: 600;
   cursor: pointer;
@@ -38,7 +38,7 @@
 }
 
 .scenario-chip.is-active {
-  background: var(--mono-block-bg);
+  background-color: var(--mono-block-bg);
   color: var(--mono-block-fg);
   border-color: transparent;
 }
@@ -52,7 +52,7 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .scenario-card-head {
@@ -68,7 +68,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--mono-block-bg);
+  background-color: var(--mono-block-bg);
   color: var(--mono-block-fg);
   font-size: 1.3rem;
 }
@@ -127,7 +127,7 @@
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: var(--input-bg);
+  background-color: var(--input-bg);
   color: var(--ink-strong);
   font-family: var(--mono);
   font-size: 1rem;
@@ -145,7 +145,7 @@
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   color: var(--ink-strong);
   cursor: pointer;
   font-size: 0.92rem;
@@ -167,7 +167,7 @@
 }
 
 .e91-actions .tab-button {
-  background: var(--accent);
+  background-color: var(--accent);
   color: #fff;
   border-color: transparent;
 }
@@ -180,7 +180,7 @@
   min-height: 38px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   color: var(--ink);
   font-family: var(--mono);
   font-size: 0.82rem;
@@ -192,7 +192,7 @@
 }
 
 .copy-chip:hover {
-  background: var(--mono-block-bg);
+  background-color: var(--mono-block-bg);
   color: var(--mono-block-fg);
   border-color: transparent;
 }
@@ -203,13 +203,13 @@
 }
 
 .copy-chip.copy-chip--ok {
-  background: rgba(19, 111, 99, 0.18);
+  background-color: rgba(19, 111, 99, 0.18);
   color: var(--accent-4);
   border-color: transparent;
 }
 
 [data-theme='dark'] .copy-chip.copy-chip--ok {
-  background: rgba(61, 217, 196, 0.18);
+  background-color: rgba(61, 217, 196, 0.18);
 }
 
 .e91-output {
@@ -223,27 +223,27 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .verdict--secure {
   border-color: rgba(19, 111, 99, 0.4);
-  background: rgba(19, 111, 99, 0.08);
+  background-color: rgba(19, 111, 99, 0.08);
 }
 
 .verdict--compromised {
   border-color: var(--warning-border);
-  background: var(--warning-bg);
+  background-color: var(--warning-bg);
   color: var(--warning-fg);
 }
 
 .verdict--inconclusive {
   border-color: rgba(240, 200, 90, 0.4);
-  background: rgba(240, 200, 90, 0.1);
+  background-color: rgba(240, 200, 90, 0.1);
 }
 
 [data-theme='dark'] .verdict--secure {
-  background: rgba(61, 217, 196, 0.08);
+  background-color: rgba(61, 217, 196, 0.08);
 }
 
 .verdict-head {
@@ -259,7 +259,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--mono-block-bg);
+  background-color: var(--mono-block-bg);
   font-size: 1.6rem;
   font-weight: 700;
 }
@@ -286,19 +286,19 @@
   padding: 18px 18px 34px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .s-gauge-track {
   position: relative;
   height: 22px;
   border-radius: 999px;
-  background: rgba(11, 127, 171, 0.08);
+  background-color: rgba(11, 127, 171, 0.08);
   overflow: visible;
 }
 
 [data-theme='dark'] .s-gauge-track {
-  background: rgba(77, 195, 247, 0.1);
+  background-color: rgba(77, 195, 247, 0.1);
 }
 
 .s-gauge-fill {
@@ -337,17 +337,17 @@
   top: -4px;
   bottom: -4px;
   width: 2px;
-  background: var(--ink-soft);
+  background-color: var(--ink-soft);
   opacity: 0.65;
 }
 
 .s-gauge-tick--classical {
-  background: var(--accent-3);
+  background-color: var(--accent-3);
   opacity: 1;
 }
 
 .s-gauge-tick--tsirelson {
-  background: var(--accent-4);
+  background-color: var(--accent-4);
   opacity: 1;
 }
 
@@ -367,7 +367,7 @@
   top: -12px;
   width: 4px;
   height: 46px;
-  background: var(--ink-strong);
+  background-color: var(--ink-strong);
   border-radius: 2px;
   transform: translateX(-50%);
 }
@@ -395,7 +395,7 @@
   padding: 16px 18px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .e91-side .mono-inline + .mono-inline {
@@ -426,7 +426,7 @@
   height: 18px;
   margin-left: 6px;
   border-radius: 50%;
-  background: var(--warning-bg);
+  background-color: var(--warning-bg);
   color: var(--warning-fg);
   border: 1px solid var(--warning-border);
   font-family: var(--mono);
@@ -439,7 +439,7 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   display: grid;
   gap: 12px;
 }
@@ -464,11 +464,11 @@
 }
 
 .bit-cell--match {
-  background: var(--accent-4);
+  background-color: var(--accent-4);
 }
 
 .bit-cell--miss {
-  background: var(--accent-2);
+  background-color: var(--accent-2);
 }
 
 /* Transcript table */
@@ -496,21 +496,21 @@
 }
 
 .bucket-tag--chsh {
-  background: rgba(11, 127, 171, 0.15);
+  background-color: rgba(11, 127, 171, 0.15);
   color: var(--accent);
 }
 
 .bucket-tag--key {
-  background: rgba(19, 111, 99, 0.18);
+  background-color: rgba(19, 111, 99, 0.18);
   color: var(--accent-4);
 }
 
 [data-theme='dark'] .bucket-tag--chsh {
-  background: rgba(77, 195, 247, 0.18);
+  background-color: rgba(77, 195, 247, 0.18);
 }
 
 [data-theme='dark'] .bucket-tag--key {
-  background: rgba(61, 217, 196, 0.18);
+  background-color: rgba(61, 217, 196, 0.18);
 }
 
 /* Bell-concepts grid */
@@ -527,7 +527,7 @@
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 22px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .corr-curve-heading {
@@ -590,7 +590,7 @@
   padding: 16px 18px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .proto-step-num {
@@ -599,7 +599,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--mono-block-bg);
+  background-color: var(--mono-block-bg);
   color: var(--accent-3);
   font-family: var(--mono);
   font-weight: 700;
@@ -618,11 +618,11 @@
 }
 
 .compare-e91 th[scope='col'] {
-  background: rgba(11, 127, 171, 0.08);
+  background-color: rgba(11, 127, 171, 0.08);
 }
 
 .compare-e91 th[scope='row'] {
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   color: var(--ink-strong);
   text-align: left;
   white-space: nowrap;
@@ -630,7 +630,7 @@
 }
 
 [data-theme='dark'] .compare-e91 th[scope='col'] {
-  background: rgba(77, 195, 247, 0.08);
+  background-color: rgba(77, 195, 247, 0.08);
 }
 
 /* History list */
@@ -650,7 +650,7 @@
   top: 6px;
   bottom: 6px;
   width: 2px;
-  background: var(--line);
+  background-color: var(--line);
 }
 
 .hist-item {
@@ -678,7 +678,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   border: 2px solid var(--accent);
 }
 
@@ -686,7 +686,7 @@
   padding: 12px 16px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .hist-body h3 {
@@ -716,7 +716,7 @@
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
   display: grid;
   gap: 4px;
 }
@@ -753,7 +753,7 @@
   padding: 16px 18px;
   border: 1px dashed var(--warning-border);
   border-radius: 16px;
-  background: var(--warning-bg);
+  background-color: var(--warning-bg);
   color: var(--warning-fg);
 }
 
@@ -777,7 +777,7 @@
   padding: 16px 18px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: var(--panel-strong);
+  background-color: var(--panel-strong);
 }
 
 .scripture {
@@ -794,12 +794,12 @@ code {
   font-size: 0.92em;
   padding: 1px 6px;
   border-radius: 6px;
-  background: rgba(11, 127, 171, 0.08);
+  background-color: rgba(11, 127, 171, 0.08);
   color: var(--accent);
 }
 
 [data-theme='dark'] code {
-  background: rgba(77, 195, 247, 0.12);
+  background-color: rgba(77, 195, 247, 0.12);
 }
 
 .deployment-link {
