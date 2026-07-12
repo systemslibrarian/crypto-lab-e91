@@ -123,36 +123,43 @@ function decodeStateHash(hash: string): RunState {
 
 function renderHero(): HTMLElement {
 	const hero = el('section', 'hero-panel');
+	// #theme-toggle stays in the DOM (hidden by the shared topbar CSS) so the
+	// legacy theme JS in main.ts keeps working.
 	hero.innerHTML = `
 		<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light mode">🌙</button>
-		<div class="hero-copy">
-			<p class="eyebrow">Quantum · E91 QKD</p>
-			<h1>E91 — Entanglement-Based QKD</h1>
-			<p class="hero-text">
-				BB84 detects eavesdroppers because measuring a photon disturbs it. E91 detects
-				them because entangled photons are correlated more strongly than any classical
-				theory allows — and an eavesdropper breaks that correlation. Alice and Bob share
-				a stream of entangled singlet pairs, run a CHSH Bell test on most of the rounds,
-				and harvest the rest as a key. The verdict is statistical: if the 95% confidence
-				interval for |S| sits clearly above the classical bound of 2, the channel is
-				consistent with intact entanglement under this model; if it sits below, the
-				key must be discarded.
-			</p>
-			<details class="why-details">
-				<summary>How is this different from BB84?</summary>
-				<p>
-					BB84 (1984) is prepare-and-measure: Alice picks a polarization and a basis,
-					sends a single photon, and Bob guesses the basis. Its security rests on the
-					no-cloning theorem and shows up as raised QBER. E91 (1991) is
-					entanglement-based: a source emits a singlet pair, Alice and Bob each
-					measure their half, and they run a Bell test on the joint statistics. Its
-					security rests on Bell-inequality violation, and any eavesdropper who
-					listens forces the world back into a classical-correlation regime. Same
-					goal — different physics. See the sibling
-					<code>crypto-lab-bb84</code> demo for the prepare-and-measure side.
+		<header class="cl-hero">
+			<div class="cl-hero-main">
+				<h1 class="cl-hero-title">E91</h1>
+				<p class="cl-hero-sub">Ekert 1991 · Entanglement-based QKD · CHSH Bell test</p>
+				<p class="cl-hero-desc">
+					Run a CHSH Bell test on streams of entangled singlet pairs, watch |S| sit near
+					Tsirelson's bound 2√2 ≈ 2.828, then switch on an intercept-resend Eve (or channel
+					noise) and see S collapse back toward the classical bound of 2.
 				</p>
-			</details>
-		</div>
+			</div>
+			<aside class="cl-hero-why" aria-label="Why it matters">
+				<span class="cl-hero-why-label">WHY IT MATTERS</span>
+				<p class="cl-hero-why-text">
+					E91 grounds key security in a law of physics: no eavesdropper can share the
+					entanglement without weakening the Bell violation. The CHSH statistic becomes a
+					live tamper alarm — if |S| drops to the classical regime, the key is discarded.
+				</p>
+			</aside>
+		</header>
+		<details class="why-details">
+			<summary>How is this different from BB84?</summary>
+			<p>
+				BB84 (1984) is prepare-and-measure: Alice picks a polarization and a basis,
+				sends a single photon, and Bob guesses the basis. Its security rests on the
+				no-cloning theorem and shows up as raised QBER. E91 (1991) is
+				entanglement-based: a source emits a singlet pair, Alice and Bob each
+				measure their half, and they run a Bell test on the joint statistics. Its
+				security rests on Bell-inequality violation, and any eavesdropper who
+				listens forces the world back into a classical-correlation regime. Same
+				goal — different physics. See the sibling
+				<code>crypto-lab-bb84</code> demo for the prepare-and-measure side.
+			</p>
+		</details>
 		<div class="hero-metric-card">
 			<p class="hero-metric-label">Bell test</p>
 			<p class="hero-metric-value">classical: |S| ≤ 2</p>
