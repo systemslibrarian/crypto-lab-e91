@@ -3,6 +3,12 @@
   --ink: #30273f;
   --ink-soft: #574a66;
   --line: rgba(33, 26, 43, 0.12);
+  /* Control boundaries only (tab buttons, copy chips, number inputs). Those
+     controls are filled with --panel-strong / --input-bg, which sit at 1.03-1.15:1
+     against the surface behind them, so the border is the sole boundary and WCAG
+     2.1 SC 1.4.11 requires 3:1. The translucent --line resolves to ~1.27:1 and
+     stays as-is for decorative panel, card and table outlines. */
+  --line-strong: #8a7ea3;
   --panel: rgba(255, 252, 248, 0.84);
   --panel-strong: rgba(255, 255, 255, 0.92);
   --accent: #086e96;
@@ -46,6 +52,7 @@
   --ink: #d5cfe0;
   --ink-soft: #a99eb8;
   --line: rgba(200, 190, 220, 0.14);
+  --line-strong: #8578a0;
   --panel: rgba(30, 26, 38, 0.88);
   --panel-strong: rgba(38, 33, 48, 0.94);
   --accent: #4dc3f7;
@@ -289,7 +296,7 @@ button {
 }
 
 .tab-button {
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   padding: 12px 18px;
   min-height: 44px;
