@@ -103,6 +103,13 @@ body {
   height: auto;
 }
 
+/* The dark theme lifts --accent to #4dc3f7, where white ink is only 2.01:1
+   (fails WCAG 1.4.3). Dark ink on that same fill is 9.39:1. The default (light)
+   --accent (#086e96) keeps white at 5.70:1, so it is left alone. */
+[data-theme="dark"] .skip-link {
+  color: #12101a;
+}
+
 button {
   font: inherit;
   cursor: pointer;
