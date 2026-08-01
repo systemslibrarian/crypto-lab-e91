@@ -476,7 +476,7 @@ function renderSGauge(r: E91Result): string {
 				? 'gauge-fill--bad'
 				: 'gauge-fill--meh';
 	return `
-		<div class="s-gauge" aria-label="CHSH parameter gauge with 95% confidence band">
+		<div class="s-gauge" role="img" aria-label="CHSH parameter gauge with 95% confidence band. |S| = ${fmt(absS)}, 95% CI [${fmt(ciLo)}, ${fmt(ciHi)}], classical bound 2, Tsirelson bound ${fmt(r.tsirelsonBound)}.">
 			<div class="s-gauge-track">
 				<div class="s-gauge-fill ${region}" style="width: ${pctOf(absS)};"></div>
 				<div class="s-gauge-ci" style="left: ${pctOf(ciLo)}; width: calc(${pctOf(ciHi)} - ${pctOf(ciLo)});" title="95% CI: [${fmt(ciLo)}, ${fmt(ciHi)}]"></div>
@@ -582,7 +582,7 @@ function renderKey(r: E91Result): string {
 		<div class="e91-key">
 			<p class="mono-inline">Alice : ${aliceBits}${r.keyBitsAlice.length > show ? '…' : ''}</p>
 			<p class="mono-inline">Bob   : ${bobBits}${r.keyBitsBob.length > show ? '…' : ''}</p>
-			<div class="bit-grid" aria-label="First ${show} key bits coloured by Alice/Bob agreement">${cells.join('')}</div>
+			<div class="bit-grid" role="img" aria-label="First ${show} key bits coloured by Alice/Bob agreement; ${agreementPct}% agree.">${cells.join('')}</div>
 			<p class="${statusClass}">Key agreement: <strong>${agreementPct}%</strong> measured · <strong>${expectedPct}%</strong> expected · ${r.keyBitsAlice.length.toLocaleString()} sifted bits.</p>
 			<p class="section-footnote">When the channel is clean, the singlet gives perfectly anti-correlated outcomes at aligned bases — Bob flips his bits and they agree exactly. Intercept-resend, depolarizing noise, and analyzer misalignment all degrade this in their own characteristic way.</p>
 		</div>
@@ -905,15 +905,22 @@ export function mountApp(root: HTMLDivElement): void {
 	const initial = decodeStateHash(window.location.hash);
 
 	const shell = el('div', 'page-shell');
-	shell.id = 'playground-heading';
 
-	shell.appendChild(renderHero());
+	// The lab's own content lives in a <main> landmark (the shared cl-topbar
+	// supplies banner + nav). The footer stays a sibling of <main> so its
+	// implicit contentinfo role is not nested inside another landmark.
+	const main = el('main');
+	main.id = 'playground-heading';
+	main.tabIndex = -1;
+
+	main.appendChild(renderHero());
 	const { node: runNode, api: runApi } = renderRunProtocol(initial);
-	shell.appendChild(runNode);
-	shell.appendChild(renderBellExplained());
-	shell.appendChild(renderVsBb84());
-	shell.appendChild(renderRealWorld());
-	shell.appendChild(renderSources());
+	main.appendChild(runNode);
+	main.appendChild(renderBellExplained());
+	main.appendChild(renderVsBb84());
+	main.appendChild(renderRealWorld());
+	main.appendChild(renderSources());
+	shell.appendChild(main);
 	shell.appendChild(renderFooter());
 
 	root.replaceChildren(shell);
