@@ -16,12 +16,12 @@ export default defineConfig({
     // Build first: `vite preview` only serves the existing dist/, so without
     // this a broken build leaves the last good bundle in place and the suite
     // passes green against source that no longer compiles.
-    command: 'npm run build && npm run preview -- --port 4223 --strictPort',
-    url: 'http://localhost:4223/crypto-lab-e91/',
+    command: 'npm run build && npm run preview -- --port 4629 --strictPort',
+    url: 'http://localhost:4629/crypto-lab-e91/',
     reuseExistingServer: !process.env.CI,
   },
   use: {
-    baseURL: 'http://localhost:4223/crypto-lab-e91/',
+    baseURL: 'http://localhost:4629/crypto-lab-e91/',
     colorScheme: 'dark',
   },
   projects: [
