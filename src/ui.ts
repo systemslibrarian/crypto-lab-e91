@@ -582,7 +582,7 @@ function renderKey(r: E91Result): string {
 		<div class="e91-key">
 			<p class="mono-inline">Alice : ${aliceBits}${r.keyBitsAlice.length > show ? '…' : ''}</p>
 			<p class="mono-inline">Bob   : ${bobBits}${r.keyBitsBob.length > show ? '…' : ''}</p>
-			<div class="bit-grid" role="img" aria-label="First ${show} key bits coloured by Alice/Bob agreement; ${agreementPct}% agree.">${cells.join('')}</div>
+			<div class="bit-grid" role="img" aria-label="First ${cells.length} key bits coloured by Alice/Bob agreement; ${agreementPct}% agree.">${cells.join('')}</div>
 			<p class="${statusClass}">Key agreement: <strong>${agreementPct}%</strong> measured · <strong>${expectedPct}%</strong> expected · ${r.keyBitsAlice.length.toLocaleString()} sifted bits.</p>
 			<p class="section-footnote">When the channel is clean, the singlet gives perfectly anti-correlated outcomes at aligned bases — Bob flips his bits and they agree exactly. Intercept-resend, depolarizing noise, and analyzer misalignment all degrade this in their own characteristic way.</p>
 		</div>
