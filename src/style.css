@@ -32,6 +32,16 @@
   --warning-fg: #6b1717;
   --warning-border: rgba(196, 59, 59, 0.16);
 
+  /* Inks for glyphs painted on --mono-block-bg. That surface is near-black in
+     BOTH themes, so these three do not flip with the theme the way --accent-*
+     do — and that is the whole point of them. The verdict icon inherits the
+     status colour, and in the light theme --accent-4 (#136f63) on the icon's
+     near-black disc measures 2.88:1, under the 3:1 its 25.6px bold glyph needs.
+     Painted here instead: 9.83:1, 5.65:1 and 8.60:1 on that disc. */
+  --on-block-valid: #3dd9c4;
+  --on-block-invalid: #f06868;
+  --on-block-pending: #4dc3f7;
+
   color-scheme: light;
   font-family: var(--sans);
   color: var(--ink);
@@ -222,11 +232,21 @@ button {
   color: var(--metric-fg);
 }
 
+/* --metric-muted is ink for the dark .hero-metric-card, and in the light theme
+   it is near-white (rgba(247, 241, 235, 0.78)). Four of this class's five uses
+   are NOT in that card — the two summary-card headings, and both footer meta
+   headings — where they sit on --panel-strong and measured 1.09:1. Invisible
+   text. The card-specific colour is scoped to the card; everywhere else the
+   label takes the ordinary panel ink. */
 .hero-metric-label {
   margin: 0;
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.hero-metric-card .hero-metric-label {
   color: var(--metric-muted);
 }
 
@@ -376,12 +396,23 @@ button {
   color: var(--accent-2);
 }
 
+/* Every table on this page is wider than the shell that holds it, so the shell
+   scrolls horizontally. None of them contains a link or a control, so without
+   `tabindex="0"` on the shell (set in ui.ts) a keyboard-only reader has no way
+   to reach the columns scrolled out of view — WCAG 2.1.1. tabindex alone,
+   deliberately: role="region" would make landmarks out of wrappers that are
+   rebuilt on every simulation run. Being focusable, they need a focus ring. */
 .table-shell {
   overflow-x: auto;
   margin-top: 18px;
   border: 1px solid var(--line);
   border-radius: 24px;
   -webkit-overflow-scrolling: touch;
+}
+
+.table-shell:focus-visible {
+  outline: 2px solid var(--accent-3);
+  outline-offset: 3px;
 }
 
 .math-table {
@@ -547,7 +578,11 @@ button {
 .cl-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:clamp(1rem,4vw,3rem);flex-wrap:wrap;margin:clamp(1rem,3vw,2rem) 0 1.5rem;}
 .cl-hero-main{flex:1 1 22rem;min-width:min(100%,20rem);}
 .cl-hero-title{margin:0;font-size:clamp(1.6rem,3.8vw,2.7rem);font-weight:700;line-height:1.1;letter-spacing:.01em;color:var(--ink-strong);}
-.cl-hero-sub{margin:.4rem 0 0;font-size:clamp(.9rem,1.6vw,1.05rem);letter-spacing:.01em;color:var(--accent);opacity:.85;}
+/* No `opacity:.85` here. Fading --accent to 85% over the hero panel measured
+   4.04:1 in the light theme, under the 4.5:1 this 16.8px text needs; at full
+   strength it is 5.32:1. The old gate injected `opacity: 1` before scanning
+   the results panel, which is the same fabrication one scope over. */
+.cl-hero-sub{margin:.4rem 0 0;font-size:clamp(.9rem,1.6vw,1.05rem);letter-spacing:.01em;color:var(--accent);}
 .cl-hero-desc{margin:.55rem 0 0;font-size:1rem;line-height:1.5;color:var(--ink-soft);max-width:60ch;}
 .cl-hero-why{flex:0 1 min(40%,26rem);min-width:min(100%,15rem);border:1px solid var(--line);border-radius:10px;padding:.85rem 1.05rem;background:color-mix(in oklab,var(--accent) 6%,transparent);}
 .cl-hero-why-label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.14em;color:var(--accent);}

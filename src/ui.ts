@@ -523,7 +523,7 @@ function renderCorrelations(r: E91Result): string {
 		.join('');
 	return `
 		<h3 class="subhead">Expected vs measured correlations</h3>
-		<div class="table-shell">
+		<div class="table-shell" tabindex="0">
 			<table class="math-table corr-table">
 				<thead>
 					<tr>
@@ -607,7 +607,7 @@ function renderTranscript(r: E91Result): string {
 		.join('');
 	return `
 		<h3 class="subhead">Round-by-round transcript (first ${r.transcript.length})</h3>
-		<div class="table-shell">
+		<div class="table-shell" tabindex="0">
 			<table class="math-table transcript-table">
 				<thead>
 					<tr>
@@ -757,7 +757,7 @@ function renderVsBb84(): HTMLElement {
 				<p class="panel-copy">Two protocols for the same goal — distribute a key whose secrecy is enforced by physics — but built on different principles. See the sibling <a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-bb84/">crypto-lab-bb84</a> for the prepare-and-measure half.</p>
 			</div>
 		</div>
-		<div class="table-shell">
+		<div class="table-shell" tabindex="0">
 			<table class="math-table compare-e91">
 				<thead>
 					<tr>
