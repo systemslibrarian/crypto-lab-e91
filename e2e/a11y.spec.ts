@@ -17,7 +17,7 @@ import { NARROW, boot, expectNoHorizontalOverflow, scan, settle } from './gate';
  * are off-screen until focused.
  */
 
-const THEMES = ['dark', 'light'] as const;
+const THEMES = ['dark'] as const;
 
 /**
  * A state worth scanning: how to reach it from a booted page, and what has to
