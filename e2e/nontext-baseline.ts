@@ -23,3 +23,4 @@ export const NONTEXT_BASELINE: Record<
   "control-boundary|button.scenario-chip": { ratio: 1.2, required: 3.0, unverified: false },
   "control-boundary|button.scenario-chip.is-active": { ratio: 1.14, required: 3.0, unverified: false }
 };
+
