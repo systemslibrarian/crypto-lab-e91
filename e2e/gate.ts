@@ -13,6 +13,9 @@ export type ScenarioId = (typeof SCENARIOS)[number];
 /** A phone-width viewport, for the WCAG 1.4.10 reflow half of the gate. */
 export const NARROW = { width: 380, height: 800 };
 
+/** The desktop viewport a state is judged at before it is narrowed. */
+export const WIDE = { width: 1280, height: 800 };
+
 /**
  * Shared machinery for the WCAG gate.
  *
@@ -249,11 +252,30 @@ export async function expectNoNewNonTextFailures(page: Page, label: string): Pro
 }
 
 /**
+ * Forget every sighting recorded so far.
+ *
+ * `nonTextSeen` is module state, so within one worker it accumulates across
+ * whichever tests Playwright happened to schedule there. `fullyParallel` makes
+ * that set nondeterministic, and a staleness check reading it would then pass or
+ * fail on which tests shared its worker. The sweep below resets first so it
+ * judges exactly what it observed itself and nothing else.
+ */
+export function resetNonTextSeen(): void {
+  nonTextSeen.clear();
+}
+
+/**
  * Fail if a baselined finding never appeared during the whole drive.
  *
  * It has either been fixed — in which case delete the entry, which is the point
  * — or the drive stopped reaching the state that shows it, which is a coverage
- * regression worth knowing about. Call once, after `driveAllStates`.
+ * regression worth knowing about. Call once, after every state has been driven;
+ * `a11y.spec.ts` does that in "every baselined non-text finding still
+ * reproduces".
+ *
+ * This went a month exported and never called, which cost exactly what the
+ * doc-comment above predicts: the baseline could only grow. Wiring it in is
+ * what makes the third ratchet rule real rather than aspirational.
  */
 export function expectBaselineNotStale(): void {
   const unseen = Object.keys(NONTEXT_BASELINE).filter((k) => !nonTextSeen.has(k));

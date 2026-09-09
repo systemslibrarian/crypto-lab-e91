@@ -1,5 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
-import { NARROW, boot, expectNoHorizontalOverflow, scan, settle } from './gate';
+import {
+  NARROW,
+  WIDE,
+  boot,
+  expectBaselineNotStale,
+  expectNoHorizontalOverflow,
+  expectNoNewNonTextFailures,
+  resetNonTextSeen,
+  scan,
+  settle,
+} from './gate';
 
 /**
  * WCAG regression gate.
@@ -239,4 +249,53 @@ test('the gauge does not push the page sideways at any |S|', async ({ page }) =>
     await settle(page);
     await expectNoHorizontalOverflow(page, `gauge at ${hash} / ${NARROW.width}px`);
   }
+});
+
+/**
+ * The third rule of the non-text ratchet, which until now was not enforced.
+ *
+ * `nontext-baseline.ts` is a to-do list, and its own header promises three
+ * things: an unlisted finding fails, a listed finding that got worse fails, and
+ * a listed finding that no longer appears ALSO fails, so a fixed entry has to be
+ * deleted and the file can only shrink toward empty. The first two were live in
+ * `expectNoNewNonTextFailures`. The third lived in `expectBaselineNotStale`,
+ * which was exported and never called — so the list could only grow, and an
+ * entry fixed by some later styling change would sit there forever reading as
+ * outstanding debt. That is precisely the allowlist-becomes-exemption failure
+ * the header says it exists to prevent.
+ *
+ * It has to be one test rather than an afterAll: with `fullyParallel`, the
+ * per-state tests are spread across workers, so no single worker sees every
+ * state and each would judge the baseline on its own fraction of the drive.
+ * This drives all of them itself, in one worker, and resets the seen-set first
+ * so co-resident tests cannot lend it a sighting.
+ *
+ * It reuses `expectNoNewNonTextFailures` rather than auditing separately, so
+ * there is exactly one definition of what counts as a finding; the assertion it
+ * carries is redundant here and harmless.
+ *
+ * On the deliberate absence of a `scan()`: the confirmation chips revert on a
+ * 1.4s timer, and the two `.copy-chip--ok` entries are only observable while it
+ * is running. Auditing straight after each drive reaches them about 120ms in,
+ * against that 1.4s budget. Putting a full axe pass in front — which is what
+ * `scan()` does, and what the per-state tests do — is what spends the budget:
+ * that is exactly how the hover defect fixed in 89a9b80 first surfaced, with
+ * the 1280px scan landing after the flash had already expired.
+ */
+test('every baselined non-text finding still reproduces', async ({ page }) => {
+  test.setTimeout(120_000);
+  resetNonTextSeen();
+
+  for (const state of STATES) {
+    await page.setViewportSize(WIDE);
+    await boot(page, 'dark');
+    await state.drive(page);
+    await expectNoNewNonTextFailures(page, `baseline sweep / ${state.label} / ${WIDE.width}px`);
+
+    await page.setViewportSize(NARROW);
+    await settle(page);
+    await expectNoNewNonTextFailures(page, `baseline sweep / ${state.label} / ${NARROW.width}px`);
+  }
+
+  expectBaselineNotStale();
 });
