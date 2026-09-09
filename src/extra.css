@@ -200,10 +200,19 @@
     border-color 180ms ease;
 }
 
+/* Hover keeps the --line-strong edge. It used to clear it to `transparent`,
+   which left the chip with NO boundary at all: hover swaps the fill to
+   --mono-block-bg (#0e0b14 in dark), and that fill is 1.14:1 against the panel
+   behind it — darker than its surround rather than lighter, but nowhere near
+   the 3:1 WCAG 2.1 SC 1.4.11 wants of the thing that delineates a control. The
+   border is the only delineator these chips have; --line-strong exists for
+   exactly that (see the token's comment in style.css) and dropping it on the
+   one state a mouse user is guaranteed to see defeats the point of having it.
+   Kept at --line-strong rather than restyled, so hover still reads as the fill
+   inverting while the ring stays put — measured at 4.28:1 against the panel. */
 .copy-chip:hover {
   background-color: var(--mono-block-bg);
   color: var(--mono-block-fg);
-  border-color: transparent;
 }
 
 .copy-chip:focus-visible {
