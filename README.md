@@ -95,7 +95,7 @@ This is why the demo exposes a "rounds" knob and a "lossy channel" scenario: you
 - `effectiveRounds` for the lossy channel matches `rounds · η²` to within sampling noise.
 - `resolveScenario` accepts both ID strings and partial-override objects.
 
-CI (`.github/workflows/ci.yml`) runs `npm run build && npm test` on every push and PR. The deploy workflow (`.github/workflows/deploy.yml`) ships `dist/` to GitHub Pages on push to `main`.
+One workflow does both. `.github/workflows/deploy.yml` has a `build` job that runs `npm test`, `npm run build` and the Chromium accessibility gate on every push and pull request, and a `deploy` job that ships `dist/` to GitHub Pages on push to `main` and names `build` in `needs:`. The Dependabot auto-merge names the same job, so a bump cannot merge against a lighter gate than the one the deploy runs.
 
 ## Sources
 
