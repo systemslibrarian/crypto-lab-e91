@@ -312,6 +312,7 @@ test('ideal channel: verdict, |S| and key agreement all follow the numbers on sc
   page,
 }) => {
   const s = await run(page, '#s=ideal&r=10000&seed=1');
+  await expect(page.locator('main .hero-panel h1')).toHaveText('E91');
   assertVerdictMatchesItsOwnInterval(s);
   assertCorrelationTableIsSelfConsistent(s);
   assertCountersSum(s);

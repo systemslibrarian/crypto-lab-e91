@@ -19,7 +19,7 @@ import {
  * obeys — nothing injected, content asserted before every scan, and `violations`
  * treated as one oracle among four.
  *
- * The page is scanned in both themes, in every state a visitor can actually
+ * The page is scanned in the configured dark theme, in every state a visitor can actually
  * reach, at a 1280px desktop viewport and at a 380px phone one. Almost none of
  * the interesting states are the first-paint rendering: the compromised and
  * inconclusive verdicts recolour the whole results block, the transcript adds a
