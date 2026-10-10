@@ -30,7 +30,6 @@ import {
 } from './data.ts';
 
 const TRANSCRIPT_CAP = 50;
-const Z95 = 1.96;
 
 function el<K extends keyof HTMLElementTagNameMap>(
 	tag: K,
@@ -50,7 +49,7 @@ function clampInt(value: string, min: number, max: number, fallback: number): nu
 }
 
 function fmt(n: number, digits = 3): string {
-	if (!Number.isFinite(n)) return '—';
+	if (!Number.isFinite(n)) return 'unobserved';
 	return n.toFixed(digits);
 }
 
@@ -395,8 +394,8 @@ function resultToCsv(r: E91Result): string {
 	lines.push(`scenario,${r.scenario.id}`);
 	lines.push(`rounds_requested,${r.rounds}`);
 	lines.push(`effective_rounds,${r.effectiveRounds}`);
-	lines.push(`S_measured,${r.S}`);
-	lines.push(`S_stderr,${r.sStdErr}`);
+	lines.push(`S_measured,${Number.isFinite(r.S) ? r.S : ''}`);
+	lines.push(`S_stderr,${Number.isFinite(r.sStdErr) ? r.sStdErr : ''}`);
 	lines.push(`S_ci95_lo,${r.sCi95Lo}`);
 	lines.push(`S_ci95_hi,${r.sCi95Hi}`);
 	lines.push(`S_expected,${r.expectedS}`);
@@ -410,7 +409,7 @@ function resultToCsv(r: E91Result): string {
 	lines.push('label,expected,measured,stderr,n,ci95_lo,ci95_hi');
 	for (const c of r.correlations) {
 		lines.push(
-			`${c.label},${c.expected},${c.measured},${c.stderr},${c.n},${c.ci95Lo},${c.ci95Hi}`,
+			`${c.label},${c.expected},${Number.isFinite(c.measured) ? c.measured : ''},${Number.isFinite(c.stderr) ? c.stderr : ''},${c.n},${c.ci95Lo},${c.ci95Hi}`,
 		);
 	}
 	if (r.transcript.length > 0) {
@@ -465,10 +464,10 @@ function renderVerdict(r: E91Result): string {
 
 function renderSGauge(r: E91Result): string {
 	const absS = Math.abs(r.S);
-	const max = 3;
-	const pctOf = (v: number) => `${Math.min(100, Math.max(0, (v / max) * 100))}%`;
-	const ciLo = Math.max(0, absS - Z95 * r.sStdErr);
-	const ciHi = absS + Z95 * r.sStdErr;
+	const max = 4; // algebraic bound; sparse estimates can exceed 2sqrt(2)
+	const pctOf = (v: number) => `${Number.isFinite(v) ? Math.min(100, Math.max(0, (v / max) * 100)) : 0}%`;
+	const ciLo = r.verdict.absSCi95Lo;
+	const ciHi = r.verdict.absSCi95Hi;
 	const region =
 		r.verdict.classification === 'secure'
 			? 'gauge-fill--good'
@@ -476,7 +475,7 @@ function renderSGauge(r: E91Result): string {
 				? 'gauge-fill--bad'
 				: 'gauge-fill--meh';
 	return `
-		<div class="s-gauge" role="img" aria-label="CHSH parameter gauge with 95% confidence band. |S| = ${fmt(absS)}, 95% CI [${fmt(ciLo)}, ${fmt(ciHi)}], classical bound 2, Tsirelson bound ${fmt(r.tsirelsonBound)}.">
+		<div class="s-gauge" role="img" aria-label="CHSH parameter gauge with 95% confidence band. |S| = ${fmt(absS)}, 95% CI [${fmt(ciLo)}, ${fmt(ciHi)}], classical bound 2, Tsirelson bound ${fmt(r.tsirelsonBound)}, algebraic bound 4.">
 			<div class="s-gauge-track">
 				<div class="s-gauge-fill ${region}" style="width: ${pctOf(absS)};"></div>
 				<div class="s-gauge-ci" style="left: ${pctOf(ciLo)}; width: calc(${pctOf(ciHi)} - ${pctOf(ciLo)});" title="95% CI: [${fmt(ciLo)}, ${fmt(ciHi)}]"></div>
@@ -486,7 +485,7 @@ function renderSGauge(r: E91Result): string {
 				<div class="s-gauge-tick s-gauge-tick--tsirelson" style="left: ${pctOf(r.tsirelsonBound)};">
 					<span class="s-gauge-tick-label">2√2 ≈ ${fmt(r.tsirelsonBound)}</span>
 				</div>
-				<div class="s-gauge-marker" style="left: ${pctOf(absS)};">
+				<div class="s-gauge-marker" style="left: ${pctOf(absS)}; ${Number.isFinite(absS) ? '' : 'display: none;'}">
 					<span class="s-gauge-marker-label">|S| = ${fmt(absS)}</span>
 				</div>
 			</div>
@@ -502,7 +501,7 @@ function renderSummaryCards(r: E91Result): string {
 				<p class="hero-metric-label">CHSH parameter</p>
 				<p class="mono-inline">|S| measured = <strong>${fmt(Math.abs(r.S))}</strong></p>
 				<p class="mono-inline">|S| expected = ${fmt(expectedAbs)}</p>
-				<p class="mono-inline">95% CI for |S| = [${fmt(Math.max(0, Math.abs(r.S) - Z95 * r.sStdErr))}, ${fmt(Math.abs(r.S) + Z95 * r.sStdErr)}]</p>
+				<p class="mono-inline">95% CI for |S| = [${fmt(r.verdict.absSCi95Lo)}, ${fmt(r.verdict.absSCi95Hi)}]</p>
 				<p class="mono-inline">SE(S) = ${fmt(r.sStdErr, 4)} · classical bound = 2 · 2√2 ≈ ${fmt(r.tsirelsonBound)}</p>
 			</div>
 			<div class="e91-side">
@@ -530,22 +529,21 @@ function renderCorrelations(r: E91Result): string {
 						<th scope="col">Correlation</th>
 						<th scope="col">Expected</th>
 						<th scope="col">Measured</th>
-						<th scope="col">95% CI</th>
-						<th scope="col">SE</th>
+						<th scope="col">Joint 95% bounds</th>
+						<th scope="col">Plug-in SE</th>
 						<th scope="col">n</th>
 					</tr>
 				</thead>
 				<tbody>${rows}</tbody>
 			</table>
 		</div>
-		<p class="section-footnote">S = E(a₁,b₁) + E(a₁,b₂) + E(a₂,b₁) − E(a₂,b₂). Quantum singlet at the chosen angles gives ±1/√2 for each term, so the magnitudes sum to 2√2. The SE column uses SE(E) = √((1 − E²)/n); SE(S) combines them as independent measurements.</p>
+		<p class="section-footnote">S = E(a₁,b₁) + E(a₁,b₂) + E(a₂,b₁) − E(a₂,b₂). Conservative Hoeffding bounds give at least 95% joint coverage across the four settings for a fixed independent-trial run with fair sampling. An unobserved setting retains [-1, 1] and makes the verdict inconclusive. Plug-in SE(E) = √((1 − E²)/n) and SE(S) are descriptive estimates, not confidence radii; zero plug-in SE does not mean certainty. The ! badge marks a model expectation outside the joint bounds, not proof of an eavesdropper.</p>
 	`;
 }
 
 function renderCorrelationRow(c: CorrelationStat): string {
-	const dev = c.measured - c.expected;
-	const sigma = c.stderr > 0 ? dev / c.stderr : 0;
-	const offBadge = Math.abs(sigma) > 3 ? '<span class="corr-warn" title="More than 3σ from expected">!</span>' : '';
+	const outside = c.expected < c.ci95Lo || c.expected > c.ci95Hi;
+	const offBadge = outside ? '<span class="corr-warn" title="Model expectation outside the simultaneous confidence bounds">!</span>' : '';
 	return `
 		<tr>
 			<td class="mono-cell">${c.label}</td>

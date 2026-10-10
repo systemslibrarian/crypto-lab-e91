@@ -19,7 +19,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 const TSIRELSON = 2 * Math.sqrt(2);
 const SQRT2 = Math.SQRT2;
-const Z95 = 1.96;
+
 const DEG = Math.PI / 180;
 
 // Values are printed with toFixed(3)/toFixed(4), so agreement between two
@@ -204,9 +204,14 @@ function assertVerdictMatchesItsOwnInterval(s: Snapshot): void {
   // The interval must actually bracket the point estimate...
   expect(n.ciLo).toBeLessThanOrEqual(n.absS + ROUND_TOL);
   expect(n.ciHi).toBeGreaterThanOrEqual(n.absS - ROUND_TOL);
-  // ...and be exactly |S| +- 1.96 SE(S) (clamped at 0).
-  expect(n.ciLo).toBeCloseTo(Math.max(0, n.absS - Z95 * n.seS), 2);
-  expect(n.ciHi).toBeCloseTo(n.absS + Z95 * n.seS, 2);
+  // Propagate the FOUR simultaneous signed correlation bounds, then fold |.|.
+  const signedLo = s.rows[0]!.ciLo + s.rows[1]!.ciLo + s.rows[2]!.ciLo - s.rows[3]!.ciHi;
+  const signedHi = s.rows[0]!.ciHi + s.rows[1]!.ciHi + s.rows[2]!.ciHi - s.rows[3]!.ciLo;
+  const foldedLo = signedLo <= 0 && signedHi >= 0 ? 0 : Math.min(Math.abs(signedLo), Math.abs(signedHi));
+  expect(Math.abs(n.ciLo - foldedLo)).toBeLessThan(0.005);
+  expect(Math.abs(n.ciHi - Math.max(Math.abs(signedLo), Math.abs(signedHi)))).toBeLessThan(0.005);
+  expect(n.ciLo).toBeGreaterThanOrEqual(0);
+  expect(n.ciHi).toBeLessThanOrEqual(4);
   // The headline is the CI-vs-2 rule and nothing else.
   expect(s.headline, `verdict "${s.headline}" contradicts its own CI [${n.ciLo}, ${n.ciHi}]`).toBe(
     expectedHeadline(n.ciLo, n.ciHi),
@@ -248,9 +253,10 @@ function assertCorrelationTableIsSelfConsistent(s: Snapshot): void {
     // SE(E) = sqrt((1 - E^2)/n)
     const se = Math.sqrt(Math.max(0, 1 - r.measured * r.measured) / r.n);
     expect(Math.abs(r.se - se), `SE for ${r.label} is not sqrt((1-E^2)/n)`).toBeLessThan(1e-3);
-    // CI = measured +- 1.96 SE
-    expect(Math.abs(r.ciLo - (r.measured - Z95 * r.se))).toBeLessThan(ROUND_TOL);
-    expect(Math.abs(r.ciHi - (r.measured + Z95 * r.se))).toBeLessThan(ROUND_TOL);
+    // Binomial Hoeffding bounds: per-setting alpha=.05/4, E=2p-1.
+    const radius = Math.sqrt(2 * Math.log(160) / r.n);
+    expect(Math.abs(r.ciLo - Math.max(-1, r.measured - radius))).toBeLessThan(ROUND_TOL);
+    expect(Math.abs(r.ciHi - Math.min(1, r.measured + radius))).toBeLessThan(ROUND_TOL);
     expect(r.measured).toBeGreaterThanOrEqual(-1);
     expect(r.measured).toBeLessThanOrEqual(1);
     varS += r.se * r.se;
@@ -335,9 +341,9 @@ test('ideal channel: verdict, |S| and key agreement all follow the numbers on sc
 test('the gauge draws the number it reports', async ({ page }) => {
   const s = await run(page, '#s=ideal&r=10000&seed=1');
   const n = sNumbers(s);
-  // The gauge is a 0..3 scale; marker and CI box must be placed from |S|.
-  expect(num(s.markerLeft)).toBeCloseTo((n.absS / 3) * 100, 1);
-  expect(num(s.ciLeft)).toBeCloseTo((Math.max(0, n.ciLo) / 3) * 100, 1);
+  // The gauge spans the algebraic 0..4 bound; marker and CI box must be placed from |S|.
+  expect(num(s.markerLeft)).toBeCloseTo((n.absS / 4) * 100, 1);
+  expect(num(s.ciLeft)).toBeCloseTo((Math.max(0, n.ciLo) / 4) * 100, 1);
   expect(s.tickLabels).toContain('classical 2');
   expect(s.tickLabels.some((t) => t.includes('2√2') && t.includes('2.828'))).toBe(true);
 });
@@ -490,26 +496,61 @@ test('a key shorter than the grid is described by the grid it actually drew', as
   expect(s.aliceBits).not.toContain('…');
 });
 
-// --- 3. the 3-sigma outlier badge -----------------------------------------
+// --- 3. the simultaneous-bound model discrepancy badge --------------------
 
-test('the ! badge marks exactly the rows more than 3 sigma from expected', async ({ page }) => {
-  // Seed chosen because one correlation lands ~3.9 sigma off; every other
-  // seeded run in this suite must stay clean.
-  const s = await run(page, '#s=ideal&r=10000&seed=1498');
+test('the ! badge marks model expectations outside the simultaneous bounds', async ({ page }) => {
+  // Ordinary deterministic simulation: one correlation is outside its bound.
+  // A selected interval miss is a display control, not a coverage estimate.
+  const s = await run(page, '#s=ideal&r=1000&seed=640');
   assertCorrelationTableIsSelfConsistent(s);
-  let badged = 0;
   for (const r of s.rows) {
-    const sigma = Math.abs((r.measured - r.expected) / r.se);
-    expect(
-      r.badged,
-      `${r.label} is ${sigma.toFixed(2)} sigma off but badged=${r.badged}`,
-    ).toBe(sigma > 3);
-    if (r.badged) badged++;
+    expect(r.badged).toBe(r.expected < r.ciLo || r.expected > r.ciHi);
   }
-  expect(badged).toBe(1);
-
+  expect(s.rows.filter(r => r.badged)).toHaveLength(1);
+  await expect(page.locator('.corr-warn')).toHaveAttribute('title', /outside the simultaneous confidence bounds/);
   const clean = await run(page, '#s=ideal&r=10000&seed=1');
   expect(clean.rows.every((r) => !r.badged)).toBe(true);
+});
+
+test('sparse supported lossy run is inconclusive and all confidence displays agree', async ({ page }) => {
+  const s = await run(page, '#s=lossy&r=1000&seed=1&lossEta=0.2');
+  expect(s.rows.map(r => r.n)).toEqual([4, 10, 5, 6]);
+  expect(s.headline).toBe('Inconclusive');
+  expect(sNumbers(s).absS).toBeCloseTo(3.8);
+  assertVerdictMatchesItsOwnInterval(s);
+  assertCorrelationTableIsSelfConsistent(s);
+  expect(sNumbers(s).ciLo).toBeLessThan(TSIRELSON);
+  expect(sNumbers(s).ciHi).toBeGreaterThan(TSIRELSON);
+  for (const r of s.rows) expect(r.ciHi).toBeGreaterThan(r.ciLo);
+  expect(s.rows.every(r => !r.badged)).toBe(true);
+});
+
+test('unobserved settings show full bounds and never a fabricated CHSH estimate', async ({ page }) => {
+  // eta=0 is an API/hash boundary, outside the slider minimum .2.
+  const s = await run(page, '#s=lossy&r=1000&seed=1&lossEta=0');
+  expect(s.headline).toBe('Inconclusive');
+  expect(s.summary).toContain('unobserved');
+  expect(s.detail).toContain('Missing settings');
+  expect(s.sideChsh).toContain('|S| measured = unobserved');
+  expect(s.sideChsh).toContain('95% CI for |S| = [0.000, 4.000]');
+  expect(s.gauge).toContain('|S| = unobserved, 95% CI [0.000, 4.000]');
+  for (const r of s.rows) {
+    expect(r.n).toBe(0);
+    expect(Number.isNaN(r.measured)).toBe(true);
+    expect(Number.isNaN(r.se)).toBe(true);
+    expect([r.ciLo, r.ciHi]).toEqual([-1, 1]);
+    expect(r.badged).toBe(false);
+  }
+  await expect(page.locator('.s-gauge-marker')).toBeHidden();
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.locator('#e91-copy-csv').click();
+  await expect(page.locator('#e91-copy-csv')).toContainText('CSV copied');
+  const csv = await page.evaluate(() => navigator.clipboard.readText());
+  expect(csv).toContain('S_measured,\n');
+  expect(csv).toContain('S_stderr,\n');
+  expect(csv).toContain('S_ci95_lo,-4');
+  expect(csv).toContain('S_ci95_hi,4');
+  expect(csv).not.toMatch(/NaN|Infinity/);
 });
 
 // --- 4. round-by-round transcript -----------------------------------------
@@ -658,12 +699,19 @@ test('scenario strip offers all five channel models and each re-runs the sim', a
   }
 });
 
-test('the noise slider moves the verdict from secure to compromised', async ({ page }) => {
+test('the noise slider distinguishes insufficient violation evidence, secure and compromised', async ({ page }) => {
   await page.goto('.');
   await expect(page.locator('#e91-output')).not.toBeEmpty();
   await page.locator('button[data-scenario="noisy"]').click();
   const before = await snapshot(page);
-  expect(before.headline).toBe('Secure'); // default p = 0.2 still violates
+  // The expectation exceeds 2 at p=.2, but this fixed-size run cannot certify
+  // it with the conservative joint interval. More evidence is required.
+  expect(before.headline).toBe('Inconclusive');
+  await page.locator('#scenario-knob').fill('0');
+  await page.locator('#scenario-knob').dispatchEvent('change');
+  const pristine = await snapshot(page);
+  assertVerdictMatchesItsOwnInterval(pristine);
+  expect(pristine.headline).toBe('Secure');
 
   const knob = page.locator('#scenario-knob');
   await knob.fill('0.5');

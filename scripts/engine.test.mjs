@@ -12,6 +12,7 @@ import {
 	KEY_ANGLE,
 	SCENARIO_DEFAULTS,
 	correlation,
+	correlationConfidence,
 	expectedCorrelation,
 	expectedKeyAgreement,
 	expectedS,
@@ -244,4 +245,92 @@ test('resolveScenario merges partial overrides into defaults', () => {
 	assert.equal(sc.id, 'noisy');
 	assert.equal(sc.noiseP, 0.4);
 	assert.equal(sc.eveAngle, 0);
+});
+
+// Finite-sample negative controls: point estimates at the extrema are not certainty.
+test('missing Bell observations are unobserved and inconclusive, not compromised', () => {
+  for (const opts of [
+    { rounds: 0, scenario: 'ideal', seed: 1 },
+    { rounds: 1000, scenario: { id: 'lossy', lossEta: 0 }, seed: 1 },
+  ]) {
+    const r = runE91(opts);
+    assert.equal(r.verdict.classification, 'inconclusive');
+    assert.equal(r.eavesdropperDetected, false);
+    assert.deepEqual([r.sCi95Lo, r.sCi95Hi], [-4, 4]);
+    assert.deepEqual([r.verdict.absSCi95Lo, r.verdict.absSCi95Hi], [0, 4]);
+    assert.match(r.verdict.detail, /unobserved|missing/i);
+    for (const c of r.correlations) {
+      assert.equal(c.n, 0);
+      assert.deepEqual([c.ci95Lo, c.ci95Hi], [-1, 1]);
+      assert.ok(Number.isNaN(c.stderr), 'no observations do not estimate zero variance');
+    }
+  }
+});
+
+test('a missing setting prevents a confident Bell verdict', () => {
+  const r = runE91({ rounds: 4, scenario: 'ideal', seed: 1 });
+  assert.ok(r.correlations.some(c => c.n === 0));
+  assert.equal(r.verdict.classification, 'inconclusive');
+  assert.match(r.verdict.detail, /unobserved|missing/i);
+});
+
+test('supported sparse lossy run retains uncertainty at identical outcomes', () => {
+  const r = runE91({ rounds: 1000, scenario: { id: 'lossy', lossEta: 0.2 }, seed: 1 });
+  assert.deepEqual(r.correlations.map(c => c.n), [4, 10, 5, 6]);
+  assert.ok(close(Math.abs(r.S), 3.8));
+  assert.equal(r.verdict.classification, 'inconclusive');
+  assert.ok(r.sCi95Lo <= r.expectedS && r.expectedS <= r.sCi95Hi);
+  assert.ok(r.sCi95Lo >= -4 && r.sCi95Hi <= 4);
+  for (const c of r.correlations) {
+    assert.ok(c.ci95Lo >= -1 && c.ci95Hi <= 1);
+    assert.ok(c.ci95Hi > c.ci95Lo, 'all-equal finite samples still have uncertainty');
+  }
+});
+
+test('absolute CHSH confidence bounds fold the signed interval through zero', () => {
+  const r = runE91({ rounds: 1000, scenario: { id: 'noisy', noiseP: 1 }, seed: 2 });
+  assert.ok(r.sCi95Lo < 0 && r.sCi95Hi > 0);
+  assert.equal(r.verdict.absSCi95Lo, 0);
+  assert.equal(r.verdict.absSCi95Hi, Math.max(-r.sCi95Lo, r.sCi95Hi));
+});
+
+// Exact binomial probabilities, not simulation or a formula-mirroring oracle:
+// enumerate every possible sample outcome and verify the per-setting error budget.
+test('finite-sample bounds meet the .0125 binomial noncoverage budget at small n', () => {
+  for (const n of [...Array.from({ length: 30 }, (_, i) => i + 1), 50, 80, 120]) {
+    for (let step = 0; step <= 200; step++) {
+      const p = step / 200;
+      const trueE = 2 * p - 1;
+      let outsideProbability = 0;
+      let choose = 1;
+      for (let k = 0; k <= n; k++) {
+        const ci = correlationConfidence(2 * k - n, n);
+        if (trueE < ci.lo || trueE > ci.hi) {
+          outsideProbability += choose * p ** k * (1 - p) ** (n - k);
+        }
+        choose *= (n - k) / (k + 1);
+      }
+      assert.ok(outsideProbability <= .0125 + 1e-12,
+        `n=${n}, p=${p}, exact binomial noncoverage=${outsideProbability}`);
+    }
+  }
+});
+
+test('finite identical outcomes retain a nonzero confidence width; missing is full range', () => {
+  assert.deepEqual(correlationConfidence(0, 0), { lo: -1, hi: 1 });
+  for (const n of [1, 2, 4, 20, 1000]) {
+    const positive = correlationConfidence(n, n);
+    const negative = correlationConfidence(-n, n);
+    assert.ok(positive.lo < 1);
+    assert.equal(positive.hi, 1);
+    assert.equal(negative.lo, -1);
+    assert.ok(negative.hi > -1);
+    assert.equal(positive.lo, -negative.hi);
+  }
+});
+
+test('impossible counts cannot manufacture confidence evidence', () => {
+  for (const [sum, n] of [[1, 0], [2, 1], [0, 1], [0, -1], [0, .5], [0, NaN], [NaN, 1], [0, Infinity], [0, Number.MAX_SAFE_INTEGER + 1], [-2, Number.MAX_SAFE_INTEGER]]) {
+    assert.throws(() => correlationConfidence(sum, n), RangeError);
+  }
 });

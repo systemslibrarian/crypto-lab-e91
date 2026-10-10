@@ -75,6 +75,24 @@ const STATES: State[] = [
     },
   },
   {
+    label: 'sparse lossy channel / finite-sample uncertainty',
+    drive: async (page) => {
+      await page.goto('.#s=lossy&r=1000&seed=1&lossEta=0.2');
+      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Inconclusive');
+      await expect(page.locator('.s-gauge')).toHaveAttribute('aria-label', /\|S\| = 3\.800/);
+    },
+  },
+  {
+    label: 'unobserved channel / full-range bounds',
+    drive: async (page) => {
+      await page.goto('.#s=lossy&r=1000&seed=1&lossEta=0');
+      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Inconclusive');
+      await expect(page.locator('.verdict-summary')).toContainText('unobserved');
+      await expect(page.locator('.s-gauge')).toHaveAttribute('aria-label', /95% CI \[0\.000, 4\.000\]/);
+      await expect(page.locator('.s-gauge-marker')).toBeHidden();
+    },
+  },
+  {
     // A scenario that renders the knob: a range input, its label and its live
     // value readout, none of which exist in the ideal/eve/lossy cards.
     label: 'noisy channel / slider knob raised',
