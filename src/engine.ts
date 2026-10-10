@@ -22,8 +22,8 @@
 //   * 'lossy'      — each photon arrives independently with probability eta;
 //                    only coincidences contribute (rate eta^2)
 //
-// On top of the verified samplers we add: per-correlation standard errors,
-// 95% confidence intervals, and a sample-size-aware verdict — so the security
+// On top of the verified samplers we add: descriptive plug-in standard errors,
+// conservative fixed-run joint confidence bounds, and a sample-size-aware verdict — so the security
 // classification depends on the data and how much of it there is, not a fixed
 // |S| threshold. The verified physics primitives (`samplePair`,
 // `samplePairWithEve`, `correlation`) are preserved verbatim.
@@ -217,6 +217,7 @@ export interface CorrelationStat {
 	expected: number;
 	measured: number;
 	n: number;
+	// Descriptive plug-in estimate only, NOT the confidence radius. NaN if unobserved.
 	stderr: number;
 	ci95Lo: number;
 	ci95Hi: number;
@@ -224,7 +225,24 @@ export interface CorrelationStat {
 	value: number;
 }
 
-const Z95 = 1.959963984540054; // normal 97.5% quantile
+// Each product is +/-1, so (product+1)/2 is Bernoulli. Hoeffding bounds its
+// mean at any finite n: P(|p_hat-p| > epsilon) <= 2 exp(-2 n epsilon^2).
+// Allocate alpha=0.05 across FOUR settings (0.0125 each); a union bound gives
+// at least 95% simultaneous coverage, conditional on the observed counts.
+// Transform back by E=2p-1. Intersecting with [-1,1] preserves coverage because
+// it is the parameter domain, not a repair of a normal approximation.
+// Assumptions: independent trials, fixed run, setting/outcome-independent loss.
+// Source: Bartlett, CS281B/Stat241B lecture 12, section 4.2 (2008).
+export function correlationConfidence(sum: number, n: number): { lo: number; hi: number } {
+	if (!Number.isSafeInteger(n) || n < 0 || !Number.isSafeInteger(sum) ||
+		Math.abs(sum) > n || Math.abs(sum % 2) !== n % 2) {
+		throw new RangeError('Expected a valid count and sum of +/-1 outcomes');
+	}
+	if (n === 0) return { lo: -1, hi: 1 };
+	const measured = sum / n;
+	const radius = Math.sqrt((2 * Math.log(160)) / n);
+	return { lo: Math.max(-1, measured - radius), hi: Math.min(1, measured + radius) };
+}
 
 function correlationStat(
 	label: string,
@@ -232,18 +250,19 @@ function correlationStat(
 	n: number,
 	expected: number,
 ): CorrelationStat {
-	const measured = n > 0 ? sum / n : 0;
+	const measured = n > 0 ? sum / n : NaN;
 	// Var(A*B) = 1 - E^2, estimated from the measured E.
 	const variance = Math.max(0, 1 - measured * measured);
-	const stderr = n > 0 ? Math.sqrt(variance / n) : 0;
+	const stderr = n > 0 ? Math.sqrt(variance / n) : NaN;
+	const ci = correlationConfidence(sum, n);
 	return {
 		label,
 		expected,
 		measured,
 		n,
 		stderr,
-		ci95Lo: measured - Z95 * stderr,
-		ci95Hi: measured + Z95 * stderr,
+		ci95Lo: ci.lo,
+		ci95Hi: ci.hi,
 		value: measured,
 	};
 }
@@ -260,31 +279,35 @@ export interface Verdict {
 	absSCi95Hi: number;
 }
 
-function computeVerdict(S: number, sStdErr: number, scenarioId: ScenarioId): Verdict {
-	const absS = Math.abs(S);
-	const absSLo = Math.max(0, absS - Z95 * sStdErr);
-	const absSHi = absS + Z95 * sStdErr;
+function computeVerdict(sLo: number, sHi: number, missing: boolean, scenarioId: ScenarioId): Verdict {
+	// Fold the SIGNED interval through |.|; a zero crossing means a lower bound of zero.
+	const absSLo = sLo <= 0 && sHi >= 0 ? 0 : Math.min(Math.abs(sLo), Math.abs(sHi));
+	const absSHi = Math.max(Math.abs(sLo), Math.abs(sHi));
 
 	let classification: Classification;
 	let summary: string;
 	let detail: string;
 
 	const range = `[${absSLo.toFixed(3)}, ${absSHi.toFixed(3)}]`;
-	if (absSLo > 2) {
+	if (missing) {
+		classification = 'inconclusive';
+		summary = 'Inconclusive — one or more Bell settings are unobserved.';
+		detail = `The conservative 95% confidence interval for |S| is ${range}. Missing settings have the full correlation range [-1, 1]; no complete CHSH estimate is available. Run more rounds.`;
+	} else if (absSLo > 2) {
 		classification = 'secure';
 		summary = 'Channel passes the Bell test — consistent with intact entanglement.';
-		detail = `The 95% confidence interval for |S| is ${range}, entirely above the classical bound of 2. The observed statistics are inconsistent with any local hidden-variable model.`;
+		detail = `The conservative 95% confidence interval for |S| is ${range}, entirely above the classical bound of 2. Under this simulator's independent-trial and fair-sampling assumptions, the observed statistics are inconsistent with a local hidden-variable model. This is not a finite-key or device-independent security proof.`;
 	} else if (absSHi < 2) {
 		classification = 'compromised';
 		summary =
 			scenarioId === 'eve'
 				? 'Bell violation lost — consistent with an intercept-resend eavesdropper.'
 				: 'Bell violation lost — the channel does not pass the quantum test.';
-		detail = `The 95% confidence interval for |S| is ${range}, entirely below the classical bound of 2. In an experiment this signature can be produced by an eavesdropper or by sufficiently strong noise/misalignment — you cannot tell which from |S| alone, so the key must be discarded.`;
+		detail = `The conservative 95% confidence interval for |S| is ${range}, entirely below the classical bound of 2. In an experiment this signature can be produced by an eavesdropper or by sufficiently strong noise/misalignment — you cannot tell which from |S| alone, so the key must be discarded.`;
 	} else {
 		classification = 'inconclusive';
 		summary = 'Inconclusive — confidence interval straddles the classical bound.';
-		detail = `The 95% confidence interval for |S| is ${range}, which spans the classical bound of 2. The available statistics cannot distinguish a quantum channel from a classical one; run more rounds.`;
+		detail = `The conservative 95% confidence interval for |S| is ${range}, which spans the classical bound of 2. The available statistics cannot distinguish a quantum channel from a classical one; run more rounds.`;
 	}
 	return { classification, summary, detail, absSCi95Lo: absSLo, absSCi95Hi: absSHi };
 }
@@ -455,8 +478,10 @@ export function runE91(opts: RunE91Opts): E91Result {
 		stat(1, 0).stderr ** 2 +
 		stat(1, 1).stderr ** 2;
 	const sStdErr = Math.sqrt(sVariance);
-	const sCi95Lo = S - Z95 * sStdErr;
-	const sCi95Hi = S + Z95 * sStdErr;
+	// Linear interval propagation uses the CHSH signs. Joint coverage comes
+	// from the four-setting union bound, not a normal approximation or SE(S).
+	const sCi95Lo = stats[0]!.ci95Lo + stats[1]!.ci95Lo + stats[2]!.ci95Lo - stats[3]!.ci95Hi;
+	const sCi95Hi = stats[0]!.ci95Hi + stats[1]!.ci95Hi + stats[2]!.ci95Hi - stats[3]!.ci95Lo;
 
 	let matches = 0;
 	for (let i = 0; i < keyAlice.length; i++) {
@@ -464,7 +489,7 @@ export function runE91(opts: RunE91Opts): E91Result {
 	}
 	const keyAgreement = keyAlice.length ? matches / keyAlice.length : 0;
 
-	const verdict = computeVerdict(S, sStdErr, scenario.id);
+	const verdict = computeVerdict(sCi95Lo, sCi95Hi, stats.some(c => c.n === 0), scenario.id);
 
 	return {
 		S,

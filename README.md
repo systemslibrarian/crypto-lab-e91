@@ -6,7 +6,7 @@ An interactive simulation of **E91 (Ekert 1991)**, the entanglement-based quantu
 
 The protocol is the cousin of BB84 in the sibling [`crypto-lab-bb84`](https://systemslibrarian.github.io/crypto-lab-bb84/) demo, but it leans on a fundamentally different security argument: **Bell-inequality violation, not no-cloning**. The engine is implemented from scratch in TypeScript using the standard textbook quantum-mechanical predictions for the singlet state, plus three additional channel models (depolarizing noise, analyzer misalignment, photon loss) so the demo can show **that a missing 2√2 is not by itself proof of an eavesdropper** — noise and calibration error can produce the same signature.
 
-This is an **idealized educational simulation**, not a model of real photon-counting hardware. There is no detector dark-count model, no finite-key correction, no decoy-state analysis, no side-channel attacks. The math you see is the standard textbook math, decorated with sample-size-aware statistics (per-correlation standard errors and a 95% CI on |S|) so the security verdict depends on the data rather than a hard-coded threshold.
+This is an **idealized educational simulation**, not a model of real photon-counting hardware. There is no detector dark-count model, no finite-key correction, no decoy-state analysis, no side-channel attacks. The math you see is the standard textbook math, decorated with sample-size-aware statistics (descriptive plug-in standard errors and conservative joint confidence bounds on |S|) so the security verdict depends on the data rather than a hard-coded threshold.
 
 ## When to Use It
 
@@ -27,7 +27,7 @@ Inside the page:
 - **Scenario chip strip** — five channel models you can flip between: ideal, intercept-resend Eve, depolarizing noise, misaligned analyzer, lossy channel. Each scenario has a one-line story and an expectation for |S| and key agreement; the parameterised ones (noise level, misalignment angle, detection efficiency) expose a slider.
 - **Statistical verdict panel** — secure / compromised / inconclusive, with the 95% CI for |S| spelled out.
 - **CHSH gauge with confidence band** — visual marker for the measured |S|, dashed CI box, and labelled ticks at the classical bound (2) and Tsirelson's bound (2√2).
-- **Expected vs measured correlation table** — the four E(aᵢ,bⱼ) with their theoretical value, measured value, 95% CI, standard error, and sample size. A `!` badge appears on rows more than 3σ from expected.
+- **Expected vs measured correlation table** — the four E(aᵢ,bⱼ) with their theoretical value, measured value, simultaneous confidence bounds, descriptive plug-in standard error, and sample size. A `!` badge marks a model expectation outside the simultaneous bounds.
 - **Sifted key panel** — Alice / Bob bit strings, per-bit agreement coloring, measured vs expected agreement percentage.
 - **Round-by-round transcript (optional)** — first 50 rounds with bucket (CHSH / key), analyzer indices, angles in degrees, ±1 outcomes, and the product A·B.
 - **The Bell test explained** — concept cards, the singlet correlation curve E(Δ) = −cos(2Δ) with CHSH points marked, and the five-step protocol flow.
@@ -71,15 +71,13 @@ npm run dev
 
 ## Statistical interpretation of S
 
-The CHSH parameter `S = E(a₁,b₁) + E(a₁,b₂) + E(a₂,b₁) − E(a₂,b₂)` is computed from four sample means, each over its own subset of rounds. Each `E(aᵢ,bⱼ)` has standard error `SE = √((1 − E²)/n)`; the four are independent, so `Var(S)` is the sum of variances, and `SE(S) = √Σ SE(Eᵢⱼ)²`. The 95% confidence interval is `|S| ± 1.96·SE(S)`.
+The CHSH parameter `S = E(a₁,b₁) + E(a₁,b₂) + E(a₂,b₁) − E(a₂,b₂)` combines four sample means. Each ±1 product becomes a Bernoulli observation via `X = (A·B + 1)/2`. Hoeffding's inequality gives `P(|p̂ − p| > ε) ≤ 2 exp(−2nε²)`. Allocate `.05/4` error to each setting, choose `ε = √(ln(160)/(2n))`, and transform `p̂ ± ε` back to correlation bounds, intersected with the known domain `[-1,1]`.
 
-The simulator's verdict is **based on where the |S| CI falls relative to the classical bound of 2**, not on a fixed threshold:
+The union bound gives **at least 95% simultaneous coverage** of all four correlations. Add the first three lower/upper endpoints and subtract the fourth upper/lower endpoints to get signed S bounds; then map that whole interval through absolute value, using zero as the lower bound if it crosses zero. This is a conservative finite-sample interval, not a clipped Wald approximation or a claim of exactly 95% coverage. All-identical finite samples keep nonzero width. An unobserved setting retains `[-1,1]`; its measured value and standard error are unobserved, exported as empty CSV cells, and the verdict is inconclusive. The gauge spans the algebraic bound 4, so a sparse estimate above the expected quantum bound remains visible.
 
-- `secure` — the entire 95% CI for |S| is above 2; the result is statistically inconsistent with any local hidden-variable model.
-- `compromised` — the entire 95% CI is below 2; the Bell violation has been lost. (Could be Eve; could be sufficiently strong noise or misalignment. From |S| alone you cannot tell which, so the key is discarded either way.)
-- `inconclusive` — the CI straddles 2. Run more rounds.
+The verdict compares these bounds with 2: `secure` requires the lower bound above 2, `compromised` the upper bound below 2, and `inconclusive` otherwise or whenever a setting is missing. Noise and misalignment can lose the violation too; this does not identify Eve. The retained plug-in `SE(E) = √((1 − E²)/n)` and root-sum-square `SE(S)` are descriptive, never confidence radii. A zero plug-in SE is not certainty.
 
-This is why the demo exposes a "rounds" knob and a "lossy channel" scenario: you can watch a borderline case sit in the inconclusive region until enough data tightens the CI.
+Coverage assumes independent observations in a **fixed run**, conditioned on setting counts with the simulator's setting/outcome-independent loss. It does not apply to arbitrary detector selection, adversarial device memory, or repeatedly testing until a favorable result appears. Seeded runs are reproducible controls, not random coverage experiments. This remains a teaching model, not a finite-key or device-independent QKD security proof. See [Bartlett's lecture 12, §4.2](https://people.eecs.berkeley.edu/~bartlett/courses/281b-sp08/12.pdf) for the concentration bound.
 
 ## Testing
 
@@ -91,7 +89,8 @@ This is why the demo exposes a "rounds" knob and a "lossy channel" scenario: you
 - `runE91` converges to the predicted |S| within 0.05 for 30k seeded rounds across all five scenarios.
 - The confidence-aware verdict classifies seeded runs as `secure` / `compromised` correctly, and the legacy `eve: true / false` flag still selects the right scenario.
 - The transcript respects its cap, labels CHSH vs key buckets, and records consistent product = A·B.
-- Per-correlation standard errors and the S CI are populated and bracket the measured value.
+- Joint confidence bounds stay nondegenerate at finite all-identical samples; missing/partial settings and the supported sparse-loss example are inconclusive. Exact binomial enumeration checks the per-setting noncoverage budget over small sample sizes; this numerical control supplements the Hoeffding/union-bound derivation. Impossible counts are rejected.
+- Per-correlation descriptive standard errors and S confidence bounds are populated; browser controls check table/verdict/gauge/CSV agreement, algebraic limits and model-discrepancy badges.
 - `effectiveRounds` for the lossy channel matches `rounds · η²` to within sampling noise.
 - `resolveScenario` accepts both ID strings and partial-override objects.
 
