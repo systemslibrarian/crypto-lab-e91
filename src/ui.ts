@@ -135,6 +135,7 @@ function renderHero(): HTMLElement {
 					Tsirelson's bound 2√2 ≈ 2.828, then switch on an intercept-resend Eve (or channel
 					noise) and see S collapse back toward the classical bound of 2.
 				</p>
+          <p class="cl-hero-desc"><strong>Classical simulation of quantum correlations — no quantum hardware, secret-key security proof or production QKD.</strong></p>
 			</div>
 			<aside class="cl-hero-why" aria-label="Why it matters">
 				<span class="cl-hero-why-label">WHY IT MATTERS</span>
@@ -153,8 +154,9 @@ function renderHero(): HTMLElement {
 				no-cloning theorem and shows up as raised QBER. E91 (1991) is
 				entanglement-based: a source emits a singlet pair, Alice and Bob each
 				measure their half, and they run a Bell test on the joint statistics. Its
-				security rests on Bell-inequality violation, and any eavesdropper who
-				listens forces the world back into a classical-correlation regime. Same
+				security can be bounded using Bell statistics under a specified model. The full
+				intercept-resend attack simulated here destroys the violation; weaker attacks
+				need not. A Bell violation alone is not a complete finite-key security proof. Same
 				goal — different physics. See the sibling
 				<code>crypto-lab-bb84</code> demo for the prepare-and-measure side.
 			</p>
