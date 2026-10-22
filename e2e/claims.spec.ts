@@ -771,9 +771,23 @@ test('the explainer matches the engine: curve points, protocol steps, comparison
   const compare = page.locator('.compare-e91 tbody tr');
   await expect(compare).toHaveCount(6);
   await expect(compare.filter({ hasText: 'Security argument' })).toContainText(
-    "Violation of Bell's inequality",
+    'a violation alone does not certify a secret key',
   );
   await expect(compare.filter({ hasText: 'Eavesdropper signal' })).toContainText('CHSH parameter');
+  await expect(compare.filter({ hasText: 'Security argument' })).toContainText(
+    'simple intercept-resend Eve guesses the basis',
+  );
+  await expect(compare.filter({ hasText: 'Trusted source?' })).toContainText(
+    'This simulator assumes an ideal source and fair sampling',
+  );
+  const steps = page.locator('.proto-list .proto-step');
+  await expect(steps.nth(2)).toContainText('assigns each round to a shared 45° key setting');
+  await expect(steps.nth(3)).toContainText('neither outcome alone proves key security');
+  await expect(steps.nth(4)).toContainText('candidate sifted bits');
+  await expect(steps.nth(4)).toContainText('privacy amplification');
+  await expect(page.locator('.e91-key')).toContainText('not undergone reconciliation, privacy amplification');
+  await expect(page.locator('.bell-grid')).not.toContainText('Eve\'s presence shows up');
+  await expect(page.locator('.hist-list')).not.toContainText('Bell-test outcome itself certifies the devices');
 
   // Real-world timeline and references are present with their years.
   await expect(page.locator('.hist-list .hist-item')).toHaveCount(6);
@@ -784,6 +798,10 @@ test('the explainer matches the engine: curve points, protocol steps, comparison
   await expect(page.getByRole('link', { name: /Bell nonlocality is not sufficient/i })).toHaveAttribute(
     'href',
     'https://doi.org/10.1103/PhysRevLett.127.050503',
+  );
+  await expect(page.getByRole('link', { name: /Quantum cryptography based on Bell/i })).toHaveAttribute(
+    'href',
+    'https://doi.org/10.1103/PhysRevLett.67.661',
   );
   await expect(page.locator('.caveat-box')).toContainText('Does not model');
 });

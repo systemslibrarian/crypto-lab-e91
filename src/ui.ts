@@ -151,7 +151,7 @@ function renderHero(): HTMLElement {
 			<p>
 				BB84 (1984) is prepare-and-measure: Alice picks a polarization and a basis,
 				sends a single photon, and Bob guesses the basis. Its security rests on the
-				no-cloning theorem and shows up as raised QBER. E91 (1991) is
+				no-cloning theorem and is tested through QBER under a specified model. E91 (1991) is
 				entanglement-based: a source emits a singlet pair, Alice and Bob each
 				measure their half, and they run a Bell test on the joint statistics. Its
 				security can be bounded using Bell statistics under a specified model. The full
@@ -583,13 +583,13 @@ function renderKey(r: E91Result): string {
 				? 'scenario-status--pending'
 				: 'scenario-status--invalid';
 	return `
-		<h3 class="subhead">Sifted key (aligned-basis rounds)</h3>
+		<h3 class="subhead">Candidate sifted bits (shared key setting)</h3>
 		<div class="e91-key">
 			<p class="mono-inline">Alice : ${aliceBits}${r.keyBitsAlice.length > show ? '…' : ''}</p>
 			<p class="mono-inline">Bob   : ${bobBits}${r.keyBitsBob.length > show ? '…' : ''}</p>
 			<div class="bit-grid" role="img" aria-label="First ${cells.length} key bits coloured by Alice/Bob agreement; ${agreementPct}% agree.">${cells.join('')}</div>
 			<p class="${statusClass}">Key agreement: <strong>${agreementPct}%</strong> measured · <strong>${expectedPct}%</strong> expected · ${r.keyBitsAlice.length.toLocaleString()} sifted bits.</p>
-			<p class="section-footnote">When the channel is clean, the singlet gives perfectly anti-correlated outcomes at aligned bases — Bob flips his bits and they agree exactly. Intercept-resend, depolarizing noise, and analyzer misalignment all degrade this in their own characteristic way.</p>
+			<p class="section-footnote">In the ideal model, the singlet gives anti-correlated outcomes at the shared key setting — Bob flips his bits and they agree exactly. Intercept-resend, depolarizing noise, and analyzer misalignment each degrade agreement. These displayed bits have not undergone reconciliation, privacy amplification or a finite-key security proof.</p>
 		</div>
 	`;
 }
@@ -759,7 +759,7 @@ function renderVsBb84(): HTMLElement {
 			<div>
 				<p class="section-kicker">Section · 3</p>
 				<h2 id="vs-heading">E91 vs BB84</h2>
-				<p class="panel-copy">Two protocols for the same goal — distribute a key whose secrecy is enforced by physics — but built on different principles. See the sibling <a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-bb84/">crypto-lab-bb84</a> for the prepare-and-measure half.</p>
+				<p class="panel-copy">Two protocols for distributing a key under specified physical and protocol assumptions. This page models Bell statistics, not the security proof or post-processing. See the sibling <a class="deployment-link" href="https://systemslibrarian.github.io/crypto-lab-bb84/">crypto-lab-bb84</a> for the prepare-and-measure half.</p>
 			</div>
 		</div>
 		<div class="table-shell" tabindex="0">

@@ -11,7 +11,7 @@ This is an **idealized educational simulation**, not a model of real photon-coun
 ## When to Use It
 
 - **Teaching how entanglement detects eavesdroppers** — the singlet's correlation exceeds anything a classical theory can produce, and Eve's measurement drags it back to classical.
-- **Showing why E91 ≠ BB84** — same problem, different physics. BB84's alarm is QBER from Heisenberg disturbance; E91's alarm is a missing 2√2 from broken entanglement.
+- **Comparing E91 and BB84** — both distribute candidate key bits and sample correlations or errors. BB84 uses QBER to test disturbance; E91 tests CHSH correlations. Neither statistic by itself establishes a secret key.
 - **Introducing CHSH, Tsirelson's bound, and Bell-test statistics** — including the lesson that the answer is a confidence interval, not a single number.
 - **Distinguishing attack from ordinary degradation** — the noisy, misaligned, and lossy scenarios produce reduced |S| for benign reasons; the demo makes this explicit instead of pretending |S| < 2 always means "Eve."
 - **Setting up device-independent QKD intuition** — DI-QKD descends directly from E91, but a Bell violation alone is insufficient for the key-security guarantee of a specific protocol.
@@ -28,7 +28,7 @@ Inside the page:
 - **Statistical Bell-test panel** — Bell violation observed / below classical bound / inconclusive, with the 95% interval for |S| spelled out. These labels classify the modeled Bell test, not a key.
 - **CHSH gauge with confidence band** — visual marker for the measured |S|, dashed CI box, and labelled ticks at the classical bound (2) and Tsirelson's bound (2√2).
 - **Expected vs measured correlation table** — the four E(aᵢ,bⱼ) with their theoretical value, measured value, simultaneous confidence bounds, descriptive plug-in standard error, and sample size. A `!` badge marks a model expectation outside the simultaneous bounds.
-- **Sifted key panel** — Alice / Bob bit strings, per-bit agreement coloring, measured vs expected agreement percentage.
+- **Candidate sifted-bit panel** — Alice / Bob bit strings from the dedicated 45° key setting, per-bit agreement coloring, measured vs expected agreement percentage. The bits are not a final secret key.
 - **Round-by-round transcript (optional)** — first 50 rounds with bucket (CHSH / key), analyzer indices, angles in degrees, ±1 outcomes, and the product A·B.
 - **The Bell test explained** — concept cards, the singlet correlation curve E(Δ) = −cos(2Δ) with CHSH points marked, and the five-step protocol flow.
 - **E91 vs BB84** — six-row comparison table linking the sibling demo.
@@ -40,6 +40,7 @@ Inside the page:
 ## What Can Go Wrong
 
 - **A missing 2√2 is ambiguous.** A measured |S| below the classical bound can be caused by an eavesdropper *or* by ordinary noise, misalignment, or loss; from |S| alone you cannot tell which, so a degraded key is discarded either way.
+- **A Bell pass is not a key.** The five-step panel displays candidate sifted bits from a preselected shared 45° setting and tests separate CHSH rounds. Its confidence interval addresses the modeled correlations under independent-trial and fair-sampling assumptions; it neither certifies an untrusted source nor establishes a finite-key secret. Real QKD needs authenticated public discussion, error reconciliation, privacy amplification with an entropy bound, and a security proof for its devices and protocol.
 - **Finite-key effects.** Real E91 needs finite-key security corrections and enough rounds for the CI to tighten; a small sample can leave the verdict inconclusive or misleading (this demo models the statistics but not full finite-key proofs).
 - **Detector side-channels (real hardware).** Physical implementations face detector-blinding, timing, and efficiency-loophole attacks that an idealized simulation does not capture.
 - **Unauthenticated classical channel.** The public discussion/sifting channel must be authenticated; without it, a man-in-the-middle can defeat QKD regardless of the Bell test.

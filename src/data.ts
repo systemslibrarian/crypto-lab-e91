@@ -71,20 +71,20 @@ export const E91_VS_BB84: CompareRow[] = [
 	{
 		aspect: 'Security argument',
 		bb84:
-			'No-cloning theorem + measurement disturbance (Heisenberg). Eve cannot copy an unknown qubit and must guess a basis.',
+			'No universal perfect copying of arbitrary unknown quantum states; a simple intercept-resend Eve guesses the basis. Full security needs a specified device and protocol model.',
 		e91:
-			"Violation of Bell's inequality. Entangled correlations exceed any classical (local hidden-variable) theory; an eavesdropper breaks them.",
+			"A Bell violation tests nonlocal correlations under the stated sampling assumptions. The modeled full intercept-resend attack loses it; a violation alone does not certify a secret key.",
 	},
 	{
 		aspect: 'Eavesdropper signal',
-		bb84: 'Elevated QBER (quantum bit-error rate) on sifted bits.',
+		bb84: 'QBER (quantum bit-error rate) on sampled sifted bits; noise can raise it too.',
 		e91:
 			"Drop in the CHSH parameter |S| below the quantum value 2√2 toward the classical bound 2.",
 	},
 	{
 		aspect: 'Trusted source?',
 		bb84: "Trusts Alice's preparation device.",
-		e91: 'The Bell test itself certifies the source — the seed of device-independent QKD.',
+		e91: 'A suitable device-independent protocol can relax source trust under additional assumptions. This simulator assumes an ideal source and fair sampling.',
 	},
 	{
 		aspect: 'Sibling demo',
@@ -116,9 +116,9 @@ export const BELL_CONCEPTS: ConceptCard[] = [
 			'Alice picks from {0°, 45°} and Bob from {22.5°, −22.5°} because plugging those into E(a,b) = −cos(2(a−b)) gives four values of ±1/√2 that combine into |S| = 2√2. Any rotation of all four settings together gives the same |S|; the specific choice is conventional but the differences are not.',
 	},
 	{
-		title: 'How eavesdropping breaks the test',
+		title: 'Full intercept-resend in this model',
 		body:
-			"An intercept-resend Eve measures each photon before Alice and Bob do. That measurement collapses the entanglement and replaces it with a classical mixture of product states. Downstream correlations now obey |S| ≤ 2, and the CHSH value falls toward the classical bound — Eve's presence shows up as a missing 2√2.",
+			"In this simulator, Eve measures before Alice and Bob and resends product states. The modeled attack destroys the Bell violation. Other attacks need not have this signature, and a low |S| alone does not identify an eavesdropper.",
 	},
 	{
 		title: 'Noise and misalignment look similar',
@@ -143,21 +143,21 @@ export const PROTOCOL_STEPS: ProtocolStep[] = [
 	},
 	{
 		step: 3,
-		title: 'Public basis announcement',
+		title: 'Public setting announcement',
 		detail:
-			'After the run, Alice and Bob publicly announce which angle they picked for each round (but not the outcome). They sort the rounds into two piles: aligned-basis rounds (same angle on both sides) and CHSH-test rounds (the four combinations of two-and-two settings).',
+			'This model assigns each round to a shared 45° key setting or one of four CHSH-test setting pairs before measurement. After the run, Alice and Bob announce settings, not outcomes, over a channel that real QKD must authenticate. The two piles remain separate.',
 	},
 	{
 		step: 4,
-		title: 'Bell test on the CHSH-pile',
+		title: 'Bell test on the CHSH pile',
 		detail:
-			'They compute the four correlations E(aᵢ,bⱼ) on the CHSH rounds and combine them into S. If the 95% confidence interval for |S| sits clearly above 2, the entanglement survived the channel. If it sits clearly below 2, the channel was tampered with (or is too noisy/misaligned to use).',
+			'They combine the four CHSH correlations into S. A 95% interval entirely above 2 is evidence of a Bell violation under this simulator\'s independent-trial and fair-sampling assumptions. Below 2 can mean noise or misalignment as well as the modeled Eve; neither outcome alone proves key security.',
 	},
 	{
 		step: 5,
-		title: 'Key from the aligned-basis pile',
+		title: 'Candidate bits from the key-setting pile',
 		detail:
-			'On the aligned-basis rounds the singlet gives perfectly anti-correlated outcomes, so Alice records her bit and Bob flips his. The result is a shared random bit string. The key is only kept if the Bell test in step 4 passed — otherwise it is discarded.',
+			'At the shared 45° setting, ideal singlet outcomes are anti-correlated: Alice records her bit and Bob flips his. This demo displays candidate sifted bits and their agreement. A real protocol also needs error reconciliation, privacy amplification from a proved entropy bound, finite-key analysis, and authenticated discussion before treating bits as a secret key.',
 	},
 ];
 
@@ -197,7 +197,7 @@ export const REAL_WORLD: RealWorldNote[] = [
 		year: '2022',
 		title: 'Device-independent QKD',
 		body:
-			"Two groups (Nadlinger et al.; Zhang et al.) demonstrate the first full device-independent QKD: the Bell-test outcome itself certifies the devices, so Alice and Bob need not trust the source or the analyzers. The lineage from Ekert 1991 is direct.",
+			'Two groups (Nadlinger et al.; Zhang et al.) report device-independent QKD demonstrations. Their key claims depend on loophole-aware Bell tests, protocol assumptions, finite-key analysis and post-processing; a Bell-test result by itself does not certify this simulator\'s candidate bits.',
 	},
 ];
 
