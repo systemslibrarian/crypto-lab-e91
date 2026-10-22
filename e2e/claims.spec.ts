@@ -786,6 +786,9 @@ test('the explainer matches the engine: curve points, protocol steps, comparison
   await expect(steps.nth(4)).toContainText('candidate sifted bits');
   await expect(steps.nth(4)).toContainText('privacy amplification');
   await expect(page.locator('.e91-key')).toContainText('not undergone reconciliation, privacy amplification');
+  await page.locator('.why-details summary').click();
+  await expect(page.locator('.why-details')).toContainText('Bob independently picks a measurement basis');
+  await expect(page.locator('.why-details')).toContainText('simple intercept-resend Eve has to guess');
   await expect(page.locator('.bell-grid')).not.toContainText('Eve\'s presence shows up');
   await expect(page.locator('.hist-list')).not.toContainText('Bell-test outcome itself certifies the devices');
 

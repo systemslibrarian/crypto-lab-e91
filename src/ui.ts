@@ -150,8 +150,9 @@ function renderHero(): HTMLElement {
 			<summary>How is this different from BB84?</summary>
 			<p>
 				BB84 (1984) is prepare-and-measure: Alice picks a polarization and a basis,
-				sends a single photon, and Bob guesses the basis. Its security rests on the
-				no-cloning theorem and is tested through QBER under a specified model. E91 (1991) is
+				sends a single photon, and Bob independently picks a measurement basis. It tests
+				QBER under a specified model; a simple intercept-resend Eve has to guess
+				Alice's basis. E91 (1991) is
 				entanglement-based: a source emits a singlet pair, Alice and Bob each
 				measure their half, and they run a Bell test on the joint statistics. Its
 				security can be bounded using Bell statistics under a specified model. The full

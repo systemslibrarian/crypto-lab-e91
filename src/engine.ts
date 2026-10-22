@@ -1,6 +1,8 @@
 // engine.ts — Ekert 1991 (E91) entanglement-based quantum key distribution.
-// Security rests on QUANTUM ENTANGLEMENT and the violation of Bell's inequality,
-// NOT on the no-cloning/measurement-disturbance argument of BB84.
+// The E91 teaching model estimates a Bell statistic from entangled-pair
+// correlations. A secure key also requires a specified protocol/device model,
+// authenticated discussion, reconciliation, privacy amplification and a
+// finite-key analysis; this simulator does not establish those guarantees.
 //
 // Physics modeled faithfully (in the standard idealized form):
 //   * a source emits polarization-entangled photon pairs in the singlet state
@@ -11,7 +13,7 @@
 //       S = E(a1,b1) + E(a1,b2) + E(a2,b1) - E(a2,b2)
 //     |S| <= 2 for any local hidden-variable (classical) theory;
 //     quantum mechanics reaches |S| = 2*sqrt(2) ~= 2.828 (Tsirelson's bound).
-//   * the secret key comes from rounds where Alice and Bob used ALIGNED bases.
+//   * candidate sifted bits come from a dedicated shared key setting.
 //
 // Scenarios modelled (textbook channel models):
 //   * 'ideal'      — pristine entangled channel
