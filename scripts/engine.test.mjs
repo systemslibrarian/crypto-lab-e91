@@ -120,14 +120,12 @@ test('runE91 (ideal, 30k, seed=1): |S| within 0.05 of 2sqrt(2)', () => {
 	const r = runE91({ rounds: 30000, scenario: 'ideal', seed: 1 });
 	assert.ok(Math.abs(Math.abs(r.S) - TSIRELSON) < 0.05, `|S| was ${Math.abs(r.S)}`);
 	assert.equal(r.verdict.classification, 'secure');
-	assert.equal(r.eavesdropperDetected, false);
 });
 
 test('runE91 (eve, 30k, seed=1): |S| collapses near sqrt(2), verdict compromised', () => {
 	const r = runE91({ rounds: 30000, scenario: 'eve', seed: 1 });
 	assert.ok(Math.abs(Math.abs(r.S) - SQRT2) < 0.05, `|S| was ${Math.abs(r.S)}`);
 	assert.equal(r.verdict.classification, 'compromised');
-	assert.equal(r.eavesdropperDetected, true);
 });
 
 test('runE91 (noisy p=0.5, 30k, seed=2): |S| near (1-p)*2sqrt(2)', () => {
@@ -255,7 +253,6 @@ test('missing Bell observations are unobserved and inconclusive, not compromised
   ]) {
     const r = runE91(opts);
     assert.equal(r.verdict.classification, 'inconclusive');
-    assert.equal(r.eavesdropperDetected, false);
     assert.deepEqual([r.sCi95Lo, r.sCi95Hi], [-4, 4]);
     assert.deepEqual([r.verdict.absSCi95Lo, r.verdict.absSCi95Hi], [0, 4]);
     assert.match(r.verdict.detail, /unobserved|missing/i);

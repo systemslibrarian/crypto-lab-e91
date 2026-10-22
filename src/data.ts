@@ -179,7 +179,7 @@ export const REAL_WORLD: RealWorldNote[] = [
 		year: '1991',
 		title: "Ekert's E91 proposal",
 		body:
-			'Artur Ekert proposes using Bell-inequality violation directly as the security check for key distribution: the protocol simulated here. Eavesdropping is detected by a measured value of |S| that has fallen below the quantum prediction.',
+			'Artur Ekert proposes Bell-inequality testing in entanglement-based key distribution. This lab shows how a modeled intercept-resend attack lowers |S|; a changed statistic alone cannot identify an eavesdropper or prove a secret key.',
 	},
 	{
 		year: '2015',
@@ -211,7 +211,7 @@ export const SCENARIO_COPY: Record<ScenarioId, ScenarioCopy> = {
 		intro: 'Pristine entangled channel',
 		story:
 			'The source emits a perfect singlet pair, the channel adds no noise, both analyzers are aligned and lossless. This is the textbook reference case.',
-		expectation: 'Expected |S| ≈ 2√2 ≈ 2.828; key agreement = 100%. Verdict: secure.',
+		expectation: 'Expected |S| ≈ 2√2 ≈ 2.828; key agreement = 100%. Bell violation expected under this ideal model; no secret-key security proof.',
 	},
 	eve: {
 		id: 'eve',
@@ -220,7 +220,7 @@ export const SCENARIO_COPY: Record<ScenarioId, ScenarioCopy> = {
 		story:
 			'Eve sits in the middle of the channel and measures each photon in a fixed basis (π/8) before resending product states. Her measurement collapses the entanglement.',
 		expectation:
-			'Expected |S| ≈ √2 ≈ 1.414 — below the classical bound of 2; key agreement drops to ≈ 75%. Verdict: compromised.',
+			'Expected |S| ≈ √2 ≈ 1.414 — below the classical bound of 2; key agreement drops to ≈ 75%. This modeled attack loses the violation.',
 	},
 	noisy: {
 		id: 'noisy',
@@ -373,5 +373,10 @@ export const FURTHER_READING: { label: string; url: string; note: string }[] = [
 		label: 'Acín et al., Device-independent security of QKD against collective attacks',
 		url: 'https://arxiv.org/abs/quant-ph/0702152',
 		note: 'The theoretical lineage from E91 to modern device-independent QKD.',
+	},
+	{
+		label: 'Farkas et al., Bell nonlocality is not sufficient for standard DI-QKD protocols (2021)',
+		url: 'https://doi.org/10.1103/PhysRevLett.127.050503',
+		note: 'A Bell violation alone need not yield a key with the standard reconciliation studied; this is a protocol-specific limit, not an impossibility result for all DI-QKD.',
 	},
 ];

@@ -45,7 +45,7 @@ const STATES: State[] = [
     label: 'ideal channel / secure verdict',
     drive: async (page) => {
       await expect(page.locator('#e91-output .verdict--secure')).toBeVisible();
-      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Secure');
+      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Bell violation observed');
     },
   },
   {
@@ -59,7 +59,7 @@ const STATES: State[] = [
         'aria-selected',
         'true'
       );
-      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Compromised');
+      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Below classical bound');
       await expect(page.locator('#e91-output .bit-cell--miss').first()).toBeVisible();
     },
   },
@@ -105,7 +105,7 @@ const STATES: State[] = [
       await knob.fill('0.5');
       await knob.dispatchEvent('change');
       await expect(page.locator('#scenario-knob-display')).toHaveText('0.50');
-      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Compromised');
+      await expect(page.locator('#e91-output .verdict-headline')).toHaveText('Below classical bound');
     },
   },
   {

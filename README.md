@@ -2,11 +2,11 @@
 
 ## What It Is
 
-An interactive simulation of **E91 (Ekert 1991)**, the entanglement-based quantum key distribution protocol. A source emits polarization-entangled photon pairs in the singlet state; Alice and Bob each measure their half at independently chosen analyzer angles; the joint statistics are checked against the **CHSH form of Bell's inequality**. Quantum mechanics allows |S| to reach the **Tsirelson bound 2√2 ≈ 2.828**, while any classical (local hidden-variable) theory is stuck at |S| ≤ 2. An intercept-resend eavesdropper destroys the entanglement and collapses S back into the classical regime — that is the eavesdropper alarm.
+An interactive simulation of **E91 (Ekert 1991)**, the entanglement-based quantum key distribution protocol. A source emits polarization-entangled photon pairs in the singlet state; Alice and Bob each measure their half at independently chosen analyzer angles; the joint statistics are checked against the **CHSH form of Bell's inequality**. Quantum mechanics allows |S| to reach the **Tsirelson bound 2√2 ≈ 2.828**, while any classical (local hidden-variable) theory is stuck at |S| ≤ 2. The modeled intercept-resend attack destroys the violation; observing or losing a violation alone is not a secret-key security verdict.
 
 The protocol is the cousin of BB84 in the sibling [`crypto-lab-bb84`](https://systemslibrarian.github.io/crypto-lab-bb84/) demo, but it leans on a fundamentally different security argument: **Bell-inequality violation, not no-cloning**. The engine is implemented from scratch in TypeScript using the standard textbook quantum-mechanical predictions for the singlet state, plus three additional channel models (depolarizing noise, analyzer misalignment, photon loss) so the demo can show **that a missing 2√2 is not by itself proof of an eavesdropper** — noise and calibration error can produce the same signature.
 
-This is an **idealized educational simulation**, not a model of real photon-counting hardware. There is no detector dark-count model, no finite-key correction, no decoy-state analysis, no side-channel attacks. The math you see is the standard textbook math, decorated with sample-size-aware statistics (descriptive plug-in standard errors and conservative joint confidence bounds on |S|) so the security verdict depends on the data rather than a hard-coded threshold.
+This is an **idealized educational simulation**, not a model of real photon-counting hardware. There is no detector dark-count model, no finite-key correction, no decoy-state analysis, no side-channel attacks. The math you see is the standard textbook math, decorated with sample-size-aware statistics (descriptive plug-in standard errors and conservative joint confidence bounds on |S|) so the Bell-test outcome depends on the data rather than a hard-coded threshold.
 
 ## When to Use It
 
@@ -14,7 +14,7 @@ This is an **idealized educational simulation**, not a model of real photon-coun
 - **Showing why E91 ≠ BB84** — same problem, different physics. BB84's alarm is QBER from Heisenberg disturbance; E91's alarm is a missing 2√2 from broken entanglement.
 - **Introducing CHSH, Tsirelson's bound, and Bell-test statistics** — including the lesson that the answer is a confidence interval, not a single number.
 - **Distinguishing attack from ordinary degradation** — the noisy, misaligned, and lossy scenarios produce reduced |S| for benign reasons; the demo makes this explicit instead of pretending |S| < 2 always means "Eve."
-- **Setting up device-independent QKD intuition** — DI-QKD descends directly from E91; the same Bell-test-as-security-certificate idea drives loophole-free Bell experiments and entanglement-based satellite QKD.
+- **Setting up device-independent QKD intuition** — DI-QKD descends directly from E91, but a Bell violation alone is insufficient for the key-security guarantee of a specific protocol.
 - **Do NOT** use this as a model of a real quantum channel. It is faithful to the textbook idealization, not to lab hardware.
 - **Do NOT** confuse QKD with post-quantum cryptography. QKD addresses *key distribution* over a quantum channel; it does not replace the larger PQC migration story (see the rest of the suite for that).
 
@@ -25,7 +25,7 @@ This is an **idealized educational simulation**, not a model of real photon-coun
 Inside the page:
 
 - **Scenario chip strip** — five channel models you can flip between: ideal, intercept-resend Eve, depolarizing noise, misaligned analyzer, lossy channel. Each scenario has a one-line story and an expectation for |S| and key agreement; the parameterised ones (noise level, misalignment angle, detection efficiency) expose a slider.
-- **Statistical verdict panel** — secure / compromised / inconclusive, with the 95% CI for |S| spelled out.
+- **Statistical Bell-test panel** — Bell violation observed / below classical bound / inconclusive, with the 95% interval for |S| spelled out. These labels classify the modeled Bell test, not a key.
 - **CHSH gauge with confidence band** — visual marker for the measured |S|, dashed CI box, and labelled ticks at the classical bound (2) and Tsirelson's bound (2√2).
 - **Expected vs measured correlation table** — the four E(aᵢ,bⱼ) with their theoretical value, measured value, simultaneous confidence bounds, descriptive plug-in standard error, and sample size. A `!` badge marks a model expectation outside the simultaneous bounds.
 - **Sifted key panel** — Alice / Bob bit strings, per-bit agreement coloring, measured vs expected agreement percentage.
@@ -47,7 +47,7 @@ Inside the page:
 
 ## Real-World Usage
 
-- **Device-independent QKD.** E91 is the conceptual ancestor of DI-QKD, where security is certified by an observed Bell-inequality violation rather than trust in the devices.
+- **Device-independent QKD.** E91 is a conceptual ancestor of DI-QKD. Formal security also depends on the protocol, observed errors, reconciliation, finite-key bounds and physical assumptions; a violation by itself is not sufficient.
 - **Entanglement-based QKD experiments.** Laboratory and field demonstrations distribute entangled photon pairs and verify CHSH violation as the security test.
 - **Satellite QKD.** The Micius satellite distributed entangled photons over ~1200 km, demonstrating entanglement-based key distribution at intercontinental scale.
 - **Loophole-free Bell tests.** Experiments such as Hensen et al. (2015) closed the detection and locality loopholes, underpinning the security argument E91 relies on.
@@ -75,7 +75,7 @@ The CHSH parameter `S = E(a₁,b₁) + E(a₁,b₂) + E(a₂,b₁) − E(a₂,b�
 
 The union bound gives **at least 95% simultaneous coverage** of all four correlations. Add the first three lower/upper endpoints and subtract the fourth upper/lower endpoints to get signed S bounds; then map that whole interval through absolute value, using zero as the lower bound if it crosses zero. This is a conservative finite-sample interval, not a clipped Wald approximation or a claim of exactly 95% coverage. All-identical finite samples keep nonzero width. An unobserved setting retains `[-1,1]`; its measured value and standard error are unobserved, exported as empty CSV cells, and the verdict is inconclusive. The gauge spans the algebraic bound 4, so a sparse estimate above the expected quantum bound remains visible.
 
-The verdict compares these bounds with 2: `secure` requires the lower bound above 2, `compromised` the upper bound below 2, and `inconclusive` otherwise or whenever a setting is missing. Noise and misalignment can lose the violation too; this does not identify Eve. The retained plug-in `SE(E) = √((1 − E²)/n)` and root-sum-square `SE(S)` are descriptive, never confidence radii. A zero plug-in SE is not certainty.
+The Bell-test outcome compares these bounds with 2: “Bell violation observed” requires the lower bound above 2, “Below classical bound” the upper bound below 2, and “Inconclusive” otherwise or whenever a setting is missing. Noise and misalignment can lose the violation too; this does not identify Eve. The engine retains legacy internal identifiers `secure` and `compromised` for compatibility; they mean only the stated interval comparison. CSV exports use `bell_test_outcome` and scoped values. The retained plug-in `SE(E) = √((1 − E²)/n)` and root-sum-square `SE(S)` are descriptive, never confidence radii. A zero plug-in SE is not certainty.
 
 Coverage assumes independent observations in a **fixed run**, conditioned on setting counts with the simulator's setting/outcome-independent loss. It does not apply to arbitrary detector selection, adversarial device memory, or repeatedly testing until a favorable result appears. Seeded runs are reproducible controls, not random coverage experiments. This remains a teaching model, not a finite-key or device-independent QKD security proof. See [Bartlett's lecture 12, §4.2](https://people.eecs.berkeley.edu/~bartlett/courses/281b-sp08/12.pdf) for the concentration bound.
 
@@ -87,7 +87,7 @@ Coverage assumes independent observations in a **fixed run**, conditioned on set
 - The theoretical S for each scenario matches the textbook closed form (`2√2`, `√2` under intercept-resend at π/8, `(1−p)·2√2` under depolarizing noise, `2√2·cos(2δ)` under misalignment, and unchanged under loss).
 - The theoretical key agreement at aligned bases matches its closed form per scenario.
 - `runE91` converges to the predicted |S| within 0.05 for 30k seeded rounds across all five scenarios.
-- The confidence-aware verdict classifies seeded runs as `secure` / `compromised` correctly, and the legacy `eve: true / false` flag still selects the right scenario.
+- The confidence-aware Bell-test outcome classifies seeded runs on opposite sides of the classical bound, and the legacy `eve: true / false` flag still selects the right scenario.
 - The transcript respects its cap, labels CHSH vs key buckets, and records consistent product = A·B.
 - Joint confidence bounds stay nondegenerate at finite all-identical samples; missing/partial settings and the supported sparse-loss example are inconclusive. Exact binomial enumeration checks the per-setting noncoverage budget over small sample sizes; this numerical control supplements the Hoeffding/union-bound derivation. Impossible counts are rejected.
 - Per-correlation descriptive standard errors and S confidence bounds are populated; browser controls check table/verdict/gauge/CSV agreement, algebraic limits and model-discrepancy badges.
@@ -110,6 +110,8 @@ Primary references are also listed on the live page with DOIs. The most load-bea
 - W. Zhang et al. *A device-independent QKD system for distant users.* Nature 607, 687 (2022).
 
 Standard textbook treatment: Nielsen & Chuang, *Quantum Computation and Quantum Information* (Cambridge), Chapters 2 and 12. For QKD security proofs beyond the idealization, see Renner's 2005 thesis [`arxiv.org/abs/quant-ph/0512258`](https://arxiv.org/abs/quant-ph/0512258).
+
+For why nonlocality alone does not imply a key from standard device-independent protocols, see Farkas et al., [*Bell Nonlocality Is Not Sufficient for the Security of Standard Device-Independent Quantum Key Distribution Protocols*](https://doi.org/10.1103/PhysRevLett.127.050503), *Physical Review Letters* 127, 050503 (2021). Their result is conditional on the protocols and reconciliation studied; it does not say that all DI-QKD is impossible.
 
 ---
 

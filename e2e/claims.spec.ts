@@ -188,8 +188,8 @@ async function run(page: Page, hash: string): Promise<Snapshot> {
  * page printed, so the headline can never drift away from its own statistics.
  */
 function expectedHeadline(ciLo: number, ciHi: number): string {
-  if (ciLo > 2) return 'Secure';
-  if (ciHi < 2) return 'Compromised';
+  if (ciLo > 2) return 'Bell violation observed';
+  if (ciHi < 2) return 'Below classical bound';
   return 'Inconclusive';
 }
 
@@ -217,10 +217,10 @@ function assertVerdictMatchesItsOwnInterval(s: Snapshot): void {
     expectedHeadline(n.ciLo, n.ciHi),
   );
   // ...and the prose says which side of the bound it landed on.
-  if (s.headline === 'Secure') {
+  if (s.headline === 'Bell violation observed') {
     expect(s.detail).toContain('entirely above the classical bound of 2');
     expect(s.summary).toContain('passes the Bell test');
-  } else if (s.headline === 'Compromised') {
+  } else if (s.headline === 'Below classical bound') {
     expect(s.detail).toContain('entirely below the classical bound of 2');
     expect(s.summary).toContain('Bell violation lost');
   } else {
@@ -319,7 +319,7 @@ test('ideal channel: verdict, |S| and key agreement all follow the numbers on sc
   assertKeyPanelIsSelfConsistent(s);
 
   const n = sNumbers(s);
-  expect(s.headline).toBe('Secure');
+  expect(s.headline).toBe('Bell violation observed');
   // The quantum prediction: |S| at Tsirelson's bound, and the page says so.
   expect(n.expectedAbsS).toBeCloseTo(TSIRELSON, 2);
   expect(Math.abs(n.absS - TSIRELSON)).toBeLessThan(0.1);
@@ -368,7 +368,7 @@ test('failure path — intercept-resend Eve collapses the Bell violation', async
   assertCountersSum(s);
   assertKeyPanelIsSelfConsistent(s);
 
-  expect(s.headline).toBe('Compromised');
+  expect(s.headline).toBe('Below classical bound');
   // ...and it says WHY: this scenario names the eavesdropper.
   expect(s.summary).toContain('intercept-resend eavesdropper');
   expect(s.detail).toContain('the key must be discarded');
@@ -395,7 +395,7 @@ test('failure path — depolarizing noise alone destroys the violation, without 
   assertCountersSum(s);
   assertKeyPanelIsSelfConsistent(s);
 
-  expect(s.headline).toBe('Compromised');
+  expect(s.headline).toBe('Below classical bound');
   // The lesson of the demo: a missing 2sqrt(2) is NOT proof of an eavesdropper.
   expect(s.summary).toContain('the channel does not pass the quantum test');
   expect(s.summary).not.toContain('eavesdropper');
@@ -422,7 +422,7 @@ test('failure path — analyzer misalignment past 22.5 degrees looks exactly lik
   assertCountersSum(s);
   assertKeyPanelIsSelfConsistent(s);
 
-  expect(s.headline).toBe('Compromised');
+  expect(s.headline).toBe('Below classical bound');
   expect(s.summary).toContain('Bell violation lost');
   expect(s.summary).not.toContain('eavesdropper');
 
@@ -648,8 +648,8 @@ test('the exported CSV carries the same numbers the page shows', async ({ page, 
     return m![1]!.trim();
   };
   expect(field('scenario')).toBe('eve');
-  expect(field('verdict')).toBe('compromised');
-  expect(s.headline).toBe('Compromised');
+  expect(field('bell_test_outcome')).toBe('below-classical-bound');
+  expect(s.headline).toBe('Below classical bound');
 
   const n = sNumbers(s);
   const c = runCounters(s);
@@ -712,7 +712,7 @@ test('the noise slider distinguishes insufficient violation evidence, secure and
   await page.locator('#scenario-knob').dispatchEvent('change');
   const pristine = await snapshot(page);
   assertVerdictMatchesItsOwnInterval(pristine);
-  expect(pristine.headline).toBe('Secure');
+  expect(pristine.headline).toBe('Bell violation observed');
 
   const knob = page.locator('#scenario-knob');
   await knob.fill('0.5');
@@ -720,7 +720,7 @@ test('the noise slider distinguishes insufficient violation evidence, secure and
   await expect(page.locator('#scenario-knob-display')).toHaveText('0.50');
   const after = await snapshot(page);
   assertVerdictMatchesItsOwnInterval(after);
-  expect(after.headline).toBe('Compromised');
+  expect(after.headline).toBe('Below classical bound');
   expect(sNumbers(after).absS).toBeLessThan(sNumbers(before).absS);
   expect(page.url()).toContain('noiseP=0.5');
 });

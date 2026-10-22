@@ -23,8 +23,8 @@
 //                    only coincidences contribute (rate eta^2)
 //
 // On top of the verified samplers we add: descriptive plug-in standard errors,
-// conservative fixed-run joint confidence bounds, and a sample-size-aware verdict — so the security
-// classification depends on the data and how much of it there is, not a fixed
+// conservative fixed-run joint confidence bounds, and a sample-size-aware Bell-test verdict — so the
+// statistical classification depends on the data and how much of it there is, not a fixed
 // |S| threshold. The verified physics primitives (`samplePair`,
 // `samplePairWithEve`, `correlation`) are preserved verbatim.
 
@@ -269,6 +269,7 @@ function correlationStat(
 
 // --- verdict -------------------------------------------------------------
 
+// Legacy internal identifiers; the UI and CSV describe Bell-test outcomes, not key security.
 export type Classification = 'secure' | 'compromised' | 'inconclusive';
 
 export interface Verdict {
@@ -336,7 +337,6 @@ export interface E91Result {
 	expectedS: number;
 	classicalBound: number; // 2
 	tsirelsonBound: number; // 2*sqrt(2)
-	eavesdropperDetected: boolean; // alias for verdict.classification === 'compromised'
 	verdict: Verdict;
 	keyBitsAlice: number[];
 	keyBitsBob: number[];
@@ -499,7 +499,6 @@ export function runE91(opts: RunE91Opts): E91Result {
 		expectedS: expectedS(scenario),
 		classicalBound: 2,
 		tsirelsonBound: 2 * Math.sqrt(2),
-		eavesdropperDetected: verdict.classification === 'compromised',
 		verdict,
 		keyBitsAlice: keyAlice,
 		keyBitsBob: keyBob,

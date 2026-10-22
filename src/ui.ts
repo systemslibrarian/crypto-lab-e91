@@ -140,9 +140,9 @@ function renderHero(): HTMLElement {
 			<aside class="cl-hero-why" aria-label="Why it matters">
 				<span class="cl-hero-why-label">WHY IT MATTERS</span>
 				<p class="cl-hero-why-text">
-					E91 grounds key security in a law of physics: no eavesdropper can share the
-					entanglement without weakening the Bell violation. The CHSH statistic becomes a
-					live tamper alarm — if |S| drops to the classical regime, the key is discarded.
+					E91 uses Bell-test statistics to help bound an eavesdropper's information
+					under specified protocol and device assumptions. This simulation compares
+					those statistics with the classical bound; it does not certify a secret key.
 				</p>
 			</aside>
 		</header>
@@ -189,9 +189,9 @@ function renderRunProtocol(initial: RunState): { node: HTMLElement; api: RunPane
 				<h2 id="run-heading">Run the protocol</h2>
 				<p class="panel-copy">
 					Pick a scenario, choose a number of entangled pairs, optionally enable the
-					round transcript, and run. The verdict is sample-size-aware: the 95%
-					confidence interval for |S| has to clear the classical bound of 2 before the
-					channel is called secure.
+					round transcript, and run. The Bell-test result is sample-size-aware:
+					the conservative 95% interval for |S| must clear the classical bound of 2
+					before this model reports a violation. That alone does not certify key security.
 				</p>
 			</div>
 		</div>
@@ -403,7 +403,12 @@ function resultToCsv(r: E91Result): string {
 	lines.push(`S_expected,${r.expectedS}`);
 	lines.push(`classical_bound,${r.classicalBound}`);
 	lines.push(`tsirelson_bound,${r.tsirelsonBound}`);
-	lines.push(`verdict,${r.verdict.classification}`);
+	const bellTestOutcome = r.verdict.classification === 'secure'
+		? 'violation-observed'
+		: r.verdict.classification === 'compromised'
+			? 'below-classical-bound'
+			: 'inconclusive';
+	lines.push(`bell_test_outcome,${bellTestOutcome}`);
 	lines.push(`key_agreement,${r.keyAgreement}`);
 	lines.push(`key_agreement_expected,${r.expectedKeyAgreement}`);
 	lines.push('');
@@ -449,7 +454,7 @@ function renderVerdict(r: E91Result): string {
 				? 'scenario-status--invalid'
 				: 'scenario-status--pending';
 	const icon = cls === 'secure' ? '✓' : cls === 'compromised' ? '✗' : '?';
-	const headline = cls === 'secure' ? 'Secure' : cls === 'compromised' ? 'Compromised' : 'Inconclusive';
+	const headline = cls === 'secure' ? 'Bell violation observed' : cls === 'compromised' ? 'Below classical bound' : 'Inconclusive';
 	return `
 		<div class="verdict verdict--${cls}">
 			<div class="verdict-head">
@@ -864,6 +869,13 @@ function renderSources(): HTMLElement {
 						drift, side-channel attacks, or any device-physics outside the idealized
 						polarizer model. For experimental QKD security proofs see Renner (2005)
 						and the device-independent QKD references above.
+					</p>
+					<p class="panel-copy">
+						<strong>Interpret the outcome narrowly:</strong> a confidence interval above the
+						classical bound is evidence of a Bell violation under this simulator's
+						assumptions, not a secret-key security proof. The Farkas et al. (2021)
+						primary source linked above explains a protocol-specific case where
+						Bell nonlocality is insufficient for standard DI-QKD reconciliation.
 					</p>
 				</div>
 			</div>
