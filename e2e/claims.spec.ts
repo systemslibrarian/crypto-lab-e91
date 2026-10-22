@@ -780,6 +780,10 @@ test('the explainer matches the engine: curve points, protocol steps, comparison
   for (const year of ['1964', '1982', '1991', '2015', '2017', '2022']) {
     await expect(page.locator('.hist-list').filter({ hasText: year })).toHaveCount(1);
   }
-  await expect(page.locator('.refs-list .ref-row')).toHaveCount(12); // 9 primary + 3 further
+  await expect(page.locator('.refs-list .ref-row')).toHaveCount(13); // 9 primary + 4 further
+  await expect(page.getByRole('link', { name: /Bell nonlocality is not sufficient/i })).toHaveAttribute(
+    'href',
+    'https://doi.org/10.1103/PhysRevLett.127.050503',
+  );
   await expect(page.locator('.caveat-box')).toContainText('Does not model');
 });
