@@ -13,7 +13,7 @@ This is an **idealized educational simulation**, not a model of real photon-coun
 - **Teaching how entanglement detects eavesdroppers** — the singlet's correlation exceeds anything a classical theory can produce, and Eve's measurement drags it back to classical.
 - **Comparing E91 and BB84** — both distribute candidate key bits and sample correlations or errors. BB84 uses QBER to test disturbance; E91 tests CHSH correlations. Neither statistic by itself establishes a secret key.
 - **Introducing CHSH, Tsirelson's bound, and Bell-test statistics** — including the lesson that the answer is a confidence interval, not a single number.
-- **Distinguishing attack from ordinary degradation** — the noisy, misaligned, and lossy scenarios produce reduced |S| for benign reasons; the demo makes this explicit instead of pretending |S| < 2 always means "Eve."
+- **Distinguishing attack from ordinary degradation** — noise and misalignment can reduce |S| without Eve; independent, fair loss retains the expected correlation while reducing the sample and widening its interval.
 - **Setting up device-independent QKD intuition** — DI-QKD descends directly from E91, but a Bell violation alone is insufficient for the key-security guarantee of a specific protocol.
 - **Do NOT** use this as a model of a real quantum channel. It is faithful to the textbook idealization, not to lab hardware.
 - **Do NOT** confuse QKD with post-quantum cryptography. QKD addresses *key distribution* over a quantum channel; it does not replace the larger PQC migration story (see the rest of the suite for that).
@@ -25,6 +25,7 @@ This is an **idealized educational simulation**, not a model of real photon-coun
 Inside the page:
 
 - **Scenario chip strip** — five channel models you can flip between: ideal, intercept-resend Eve, depolarizing noise, misaligned analyzer, lossy channel. Each scenario has a one-line story and an expectation for |S| and key agreement; the parameterised ones (noise level, misalignment angle, detection efficiency) expose a slider.
+- **Selective detection** — a separate exact eight-instruction local classical model compares all emitted rounds (|S| = 2) with a biased two-click sample (apparent |S| = 4, with only 25% of each setting pair retained). The detector gates use only local settings and a shared preassigned instruction. It illustrates the fair-sampling assumption, not a real-device attack or a QKD security proof.
 - **Statistical Bell-test panel** — Bell violation observed / below classical bound / inconclusive, with the 95% interval for |S| spelled out. These labels classify the modeled Bell test, not a key.
 - **CHSH gauge with confidence band** — visual marker for the measured |S|, dashed CI box, and labelled ticks at the classical bound (2) and Tsirelson's bound (2√2).
 - **Expected vs measured correlation table** — the four E(aᵢ,bⱼ) with their theoretical value, measured value, simultaneous confidence bounds, descriptive plug-in standard error, and sample size. A `!` badge marks a model expectation outside the simultaneous bounds.
@@ -45,6 +46,7 @@ Inside the page:
 - **Detector side-channels (real hardware).** Physical implementations face detector-blinding, timing, and efficiency-loophole attacks that an idealized simulation does not capture.
 - **Unauthenticated classical channel.** The public discussion/sifting channel must be authenticated; without it, a man-in-the-middle can defeat QKD regardless of the Bell test.
 - **The detection-efficiency (loss) loophole.** Low detection efficiency can let a local hidden-variable model fake a Bell violation, so loss must be accounted for in any real security claim.
+- **Fair loss and selective loss differ.** The channel slider discards pairs independently of settings and outcomes, which leaves expected |S| unchanged. The separate exact classical model filters coincidences by local detector rules and can fake an apparent violation on a biased subset. See [Larsson, *Loopholes in Bell Inequality Tests of Local Realism* (2014)](https://arxiv.org/abs/1407.0363); a loophole-aware protocol must handle missing rounds, and real device-independent QKD needs much more than this comparison.
 
 ## Real-World Usage
 

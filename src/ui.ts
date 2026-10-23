@@ -28,6 +28,7 @@ import {
 	SCENARIO_ORDER,
 	type ScenarioCopy,
 } from './data.ts';
+import { localDetectionExample } from './postselection.ts';
 
 const TRANSCRIPT_CAP = 50;
 
@@ -670,10 +671,28 @@ function renderBellExplained(): HTMLElement {
 			</div>
 		</div>
 		<div class="bell-grid">${cards}</div>
+		<div class="panel-card" id="postselection-example">
+			<h3>Try selective detection</h3>
+			<p class="panel-copy">This exact eight-instruction <em>classical</em> toy fixes both outputs before Alice and Bob choose their settings. Each detector responds only to its own setting and a shared instruction. Compare counting all rounds with keeping only rounds where both detectors click.</p>
+			<label for="postselection-mode">Which rounds enter the CHSH calculation?</label>
+			<select id="postselection-mode"><option value="all">All emitted rounds</option><option value="coincidences">Only two-click rounds</option></select>
+			<div id="postselection-result" role="status" aria-live="polite"></div>
+			<p class="panel-copy">The selective model discards 75% of each setting pair. It can show an apparent |S| of 4, above even the quantum 2√2 bound, because the retained sample is biased. It does not simulate an entangled source or establish a real attack on a loophole-free Bell test or QKD protocol. The main run above instead assumes setting- and outcome-independent loss.</p>
+			<p class="panel-copy">Source: <a href="https://arxiv.org/abs/1407.0363" rel="noopener">Larsson, <em>Loopholes in Bell Inequality Tests of Local Realism</em> (2014)</a>, detection/fair-sampling discussion. This small construction is our own teaching model.</p>
+		</div>
 		${renderCorrelationCurve()}
 		<h3 class="proto-heading">Protocol flow</h3>
 		<ol class="proto-list">${steps}</ol>
 	`;
+	const select = section.querySelector<HTMLSelectElement>('#postselection-mode')!;
+	const result = section.querySelector<HTMLElement>('#postselection-result')!;
+	const update = () => {
+		const example = localDetectionExample(select.value === 'coincidences');
+		const rows = example.rows.map((row) => `<tr><th scope="row">a${row.aliceSetting + 1}, b${row.bobSetting + 1}</th><td>${row.coincidences} / ${row.issued}</td><td>${fmt(row.correlation)}</td></tr>`).join('');
+		result.innerHTML = `<p><strong>|S| = ${fmt(Math.abs(example.S))}</strong> · Coincidences: ${fmt(100 * example.coincidenceFraction, 0)}% of emitted rounds</p><div class="table-shell" tabindex="0"><table class="math-table"><caption>Exact instruction census per setting pair</caption><thead><tr><th scope="col">Settings</th><th scope="col">Kept / emitted</th><th scope="col">Correlation</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+	};
+	select.addEventListener('change', update);
+	update();
 	return section;
 }
 

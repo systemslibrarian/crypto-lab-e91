@@ -19,6 +19,21 @@ import {
 	resolveScenario,
 	runE91,
 } from '../src/engine.ts';
+import { localDetectionExample } from '../src/postselection.ts';
+
+test('local detector selection can fake CHSH on a biased coincidence subset', () => {
+	const all = localDetectionExample(false);
+	const selected = localDetectionExample(true);
+	assert.equal(all.S, 2);
+	assert.equal(all.coincidenceFraction, 1);
+	assert.deepEqual(all.rows.map((r) => r.coincidences), [8, 8, 8, 8]);
+	assert.equal(selected.S, 4);
+	assert.equal(selected.coincidenceFraction, 0.25);
+	assert.deepEqual(selected.rows.map((r) => r.coincidences), [2, 2, 2, 2]);
+	assert.deepEqual(selected.rows.map((r) => r.correlation), [1, 1, 1, -1]);
+	// Selection is local: each party's detector gate depends on its own setting
+	// and the shared preassigned instruction, never the remote choice.
+});
 
 const SQRT2 = Math.SQRT2;
 const TSIRELSON = 2 * SQRT2;
