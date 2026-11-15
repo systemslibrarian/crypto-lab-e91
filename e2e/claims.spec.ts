@@ -797,7 +797,17 @@ test('the explainer matches the engine: curve points, protocol steps, comparison
   for (const year of ['1964', '1982', '1991', '2015', '2017', '2022']) {
     await expect(page.locator('.hist-list').filter({ hasText: year })).toHaveCount(1);
   }
-  await expect(page.locator('.refs-list .ref-row')).toHaveCount(13); // 9 primary + 4 further
+  // The 2017 Micius entry is entanglement distribution plus a Bell test, not a
+  // key: Science 356, 1140 reports pairs sent to two ground stations 1,203 km
+  // apart and a violation of 2.37 ± 0.09. The entanglement-based key came in
+  // 2020 over 1,120 km (Nature 582, 501).
+  const micius = page.locator('.hist-list .hist-item').filter({ hasText: '2017' });
+  await expect(micius).toContainText('1,203 km');
+  await expect(micius).toContainText('2.37 ± 0.09');
+  await expect(micius).toContainText('no key');
+  await expect(micius).toContainText('1,120 km');
+  await expect(micius).not.toContainText('entanglement-based QKD between ground stations');
+  await expect(page.locator('.refs-list .ref-row')).toHaveCount(14); // 10 primary + 4 further
   await expect(page.getByRole('link', { name: /Bell nonlocality is not sufficient/i })).toHaveAttribute(
     'href',
     'https://doi.org/10.1103/PhysRevLett.127.050503',

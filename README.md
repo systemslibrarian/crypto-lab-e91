@@ -52,7 +52,7 @@ Inside the page:
 
 - **Device-independent QKD.** E91 is a conceptual ancestor of DI-QKD. Formal security also depends on the protocol, observed errors, reconciliation, finite-key bounds and physical assumptions; a violation by itself is not sufficient.
 - **Entanglement-based QKD experiments.** Laboratory and field demonstrations distribute entangled photon pairs and verify CHSH violation as the security test.
-- **Satellite QKD.** The Micius satellite distributed entangled photons over ~1200 km, demonstrating entanglement-based key distribution at intercontinental scale.
+- **Satellite QKD.** In 2017 the Micius satellite distributed entangled photon pairs to two ground stations in China 1,203 km apart, where the pairs violated a Bell inequality by 2.37 ± 0.09 under strict Einstein locality conditions; that experiment distributed entanglement, not a key ([Yin et al., *Science* 356, 1140](https://doi.org/10.1126/science.aan3211)). Entanglement-based QKD between two Micius ground stations 1,120 km apart followed in 2020, at a finite secret-key rate of 0.12 bits per second ([Yin et al., *Nature* 582, 501](https://doi.org/10.1038/s41586-020-2401-y)). The intercontinental 2018 link was not entanglement-based: Micius acted as a trusted relay, XORing two decoy-state prepare-and-measure keys to join ground stations 7,600 km apart in China and Austria ([Liao et al., *PRL* 120, 030501](https://doi.org/10.1103/PhysRevLett.120.030501)).
 - **Loophole-free Bell tests.** Experiments such as Hensen et al. (2015) closed the detection and locality loopholes, underpinning the security argument E91 relies on.
 - **Bell-test-certified randomness.** The same Bell-violation certificate used in E91 is used to certify randomness in device-independent randomness expansion.
 
@@ -109,6 +109,8 @@ Primary references are also listed on the live page with DOIs. The most load-bea
 - A. K. Ekert. *Quantum cryptography based on Bell's theorem.* PRL 67, 661 (1991).
 - B. Hensen et al. *Loophole-free Bell inequality violation.* Nature 526, 682 (2015).
 - J. Yin et al. *Satellite-based entanglement distribution over 1200 km.* Science 356, 1140 (2017).
+- S.-K. Liao et al. *Satellite-relayed intercontinental quantum network.* PRL 120, 030501 (2018).
+- J. Yin et al. *Entanglement-based secure quantum cryptography over 1,120 kilometres.* Nature 582, 501 (2020).
 - D. P. Nadlinger et al. *Experimental QKD certified by Bell's theorem.* Nature 607, 682 (2022).
 - W. Zhang et al. *A device-independent QKD system for distant users.* Nature 607, 687 (2022).
 

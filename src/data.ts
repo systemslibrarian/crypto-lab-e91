@@ -189,9 +189,9 @@ export const REAL_WORLD: RealWorldNote[] = [
 	},
 	{
 		year: '2017',
-		title: 'Micius satellite QKD',
+		title: 'Micius satellite entanglement distribution',
 		body:
-			'Yin et al. perform entanglement-based QKD between ground stations more than 1,200 km apart using the Micius satellite. The same principle this demo simulates — but with real photons, real losses, and a real Bell test.',
+			'Yin et al. distribute entangled photon pairs from the Micius satellite to two ground stations in China 1,203 km apart, and the pairs violate a Bell inequality by 2.37 ± 0.09 — real photons, real losses, a real Bell test, but no key. Entanglement-based QKD between Micius ground stations 1,120 km apart was reported in 2020 (Yin et al., Nature 582).',
 	},
 	{
 		year: '2022',
@@ -339,6 +339,14 @@ export const REFERENCES: Reference[] = [
 		venue: 'Science 356, 1140–1144',
 		year: '2017',
 		url: 'https://doi.org/10.1126/science.aan3211',
+	},
+	{
+		tag: 'Yin 2020',
+		authors: 'J. Yin et al.',
+		title: 'Entanglement-based secure quantum cryptography over 1,120 kilometres',
+		venue: 'Nature 582, 501–505',
+		year: '2020',
+		url: 'https://doi.org/10.1038/s41586-020-2401-y',
 	},
 	{
 		tag: 'Nadlinger 2022',
