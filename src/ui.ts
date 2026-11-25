@@ -44,9 +44,9 @@ function el<K extends keyof HTMLElementTagNameMap>(
 }
 
 function clampInt(value: string, min: number, max: number, fallback: number): number {
-	const n = parseInt(value, 10);
-	if (!Number.isFinite(n)) return fallback;
-	return Math.min(max, Math.max(min, n));
+	const n = Number(value);
+	if (!value.trim() || !Number.isFinite(n)) return fallback;
+	return Math.min(max, Math.max(min, Math.trunc(n)));
 }
 
 function fmt(n: number, digits = 3): string {
@@ -101,18 +101,17 @@ function decodeStateHash(hash: string): RunState {
 	if (!raw) return state;
 	const params = new URLSearchParams(raw);
 	const id = params.get('s') as ScenarioId | null;
-	if (id && id in SCENARIO_DEFAULTS) {
+	if (id && SCENARIO_ORDER.includes(id)) {
 		state.scenario = resolveScenario(id);
 	}
-	const r = parseInt(params.get('r') ?? '', 10);
-	if (Number.isFinite(r) && r >= 1000 && r <= 50000) state.rounds = r;
-	const seed = parseInt(params.get('seed') ?? '', 10);
-	if (Number.isFinite(seed)) state.seed = seed;
-	for (const field of ['noiseP', 'misalignRad', 'lossEta'] as const) {
-		const v = params.get(field);
-		if (v !== null) {
-			const n = parseFloat(v);
-			if (Number.isFinite(n)) state.scenario[field] = n;
+	state.rounds = clampInt(params.get('r') ?? '', 1000, 50000, state.rounds);
+	state.seed = clampInt(params.get('seed') ?? '', 0, 99999, state.seed);
+	const knob = SCENARIO_COPY[state.scenario.id].knob;
+	if (knob) {
+		const rawValue = params.get(knob.field);
+		const value = Number(rawValue);
+		if (rawValue?.trim() && Number.isFinite(value)) {
+			state.scenario[knob.field] = Math.min(knob.max, Math.max(knob.min, value));
 		}
 	}
 	if (params.get('t') === '1') state.transcriptEnabled = true;
@@ -314,6 +313,8 @@ function renderRunProtocol(initial: RunState): { node: HTMLElement; api: RunPane
 	function read(): void {
 		state.rounds = clampInt(roundsInput.value, 1000, 50000, 10000);
 		state.seed = clampInt(seedInput.value, 0, 99999, 1);
+		roundsInput.value = String(state.rounds);
+		seedInput.value = String(state.seed);
 		state.transcriptEnabled = transcriptInput.checked;
 	}
 

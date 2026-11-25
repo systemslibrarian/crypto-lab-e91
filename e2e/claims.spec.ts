@@ -769,6 +769,29 @@ test('the rounds control changes the sample size and tightens the interval', asy
   const clamped = await snapshot(page);
   expect(runCounters(clamped).requested).toBe(1000);
   assertCountersSum(clamped);
+  await expect(page.locator('#e91-rounds')).toHaveValue('1000');
+  await page.locator('#e91-rounds').fill('1e4');
+  await page.locator('#e91-run').click();
+  expect(runCounters(await snapshot(page)).requested).toBe(10000);
+  await expect(page.locator('#e91-rounds')).toHaveValue('10000');
+});
+
+test('shared run parameters agree with the displayed controls and the copied link', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const actual = await run(page, '#s=noisy&r=1e3&seed=-10&noiseP=3');
+  await expect(page.locator('#e91-rounds')).toHaveValue('1000');
+  await expect(page.locator('#e91-seed')).toHaveValue('0');
+  await expect(page.locator('#scenario-knob')).toHaveValue('0.5');
+  await expect(page.locator('#scenario-knob-display')).toHaveText('0.50');
+  await page.locator('#e91-copy-link').click();
+  await expect(page.locator('#e91-copy-link')).toContainText('Link copied');
+  const link = new URL(await page.evaluate(() => navigator.clipboard.readText()));
+  const params = new URLSearchParams(link.hash.slice(1));
+  expect(params.get('r')).toBe('1000');
+  expect(params.get('seed')).toBe('0');
+  expect(params.get('noiseP')).toBe('0.5');
+  const normalized = await run(page, link.hash);
+  expect(actual.rows).toEqual(normalized.rows);
 });
 
 // --- 7. static claims a reader can check by eye ---------------------------
