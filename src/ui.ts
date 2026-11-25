@@ -418,7 +418,7 @@ function resultToCsv(r: E91Result): string {
 	lines.push('label,expected,measured,stderr,n,ci95_lo,ci95_hi');
 	for (const c of r.correlations) {
 		lines.push(
-			`${c.label},${c.expected},${Number.isFinite(c.measured) ? c.measured : ''},${Number.isFinite(c.stderr) ? c.stderr : ''},${c.n},${c.ci95Lo},${c.ci95Hi}`,
+			`"${c.label.replace(/"/g, '""')}",${c.expected},${Number.isFinite(c.measured) ? c.measured : ''},${Number.isFinite(c.stderr) ? c.stderr : ''},${c.n},${c.ci95Lo},${c.ci95Hi}`,
 		);
 	}
 	if (r.transcript.length > 0) {

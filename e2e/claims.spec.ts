@@ -557,6 +557,14 @@ test('unobserved settings show full bounds and never a fabricated CHSH estimate'
   expect(csv).toContain('S_stderr,\n');
   expect(csv).toContain('S_ci95_lo,-4');
   expect(csv).toContain('S_ci95_hi,4');
+  for (const row of s.rows) {
+    const prefix = `"${row.label}",`;
+    const line = csv.split('\n').find(value => value.startsWith(prefix));
+    expect(line).toBeDefined();
+    const fields = line!.slice(prefix.length).split(',');
+    expect(fields).toHaveLength(6);
+    expect(fields.slice(1)).toEqual(['', '', '0', '-1', '1']);
+  }
   expect(csv).not.toMatch(/NaN|Infinity/);
 });
 
@@ -667,13 +675,21 @@ test('the exported CSV carries the same numbers the page shows', async ({ page, 
   expect(num(field('tsirelson_bound'))).toBeCloseTo(TSIRELSON, 9);
   expect(100 * num(field('key_agreement'))).toBeCloseTo(keyNumbers(s).measuredPct, 2);
 
-  // One CSV row per correlation, matching the rendered table.
-  for (const row of s.rows) {
-    const m = new RegExp(`^${row.label.replace(/[()]/g, '\\$&')},([^,]+),([^,]+),([^,]+),([^,]+),`, 'm').exec(csv);
-    expect(m, `CSV is missing correlation row ${row.label}`).not.toBeNull();
-    expect(num(m![2]!)).toBeCloseTo(row.measured, 3);
-    expect(num(m![3]!)).toBeCloseTo(row.se, 4);
-    expect(num(m![4]!)).toBe(row.n);
+  const lines = csv.split('\n');
+  const start = lines.indexOf('# correlations') + 1;
+  expect(lines[start]).toBe('label,expected,measured,stderr,n,ci95_lo,ci95_hi');
+  for (const [i, row] of s.rows.entries()) {
+    const match = /^"([^"]+)",(.*)$/.exec(lines[start + 1 + i]!);
+    expect(match, 'a setting label with an internal comma occupies one CSV field').not.toBeNull();
+    expect(match![1]).toBe(row.label);
+    const values = match![2]!.split(',').map(num);
+    expect(values).toHaveLength(6);
+    expect(values[0]).toBeCloseTo(row.expected, 3);
+    expect(values[1]).toBeCloseTo(row.measured, 3);
+    expect(values[2]).toBeCloseTo(row.se, 4);
+    expect(values[3]).toBe(row.n);
+    expect(values[4]).toBeCloseTo(row.ciLo, 3);
+    expect(values[5]).toBeCloseTo(row.ciHi, 3);
   }
 });
 
