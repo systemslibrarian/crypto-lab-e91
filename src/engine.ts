@@ -6,7 +6,7 @@
 //
 // Physics modeled faithfully (in the standard idealized form):
 //   * a source emits polarization-entangled photon pairs in the singlet state
-//   * Alice and Bob each independently pick a measurement angle each round
+//   * CHSH settings are chosen independently; key rounds use a shared 45° setting
 //   * the quantum correlation for the singlet is  E(a,b) = -cos(2(a-b))
 //   * outcomes are +1/-1, sampled from the correct joint quantum probabilities
 //   * the CHSH parameter S is computed from four angle combinations:
@@ -357,7 +357,7 @@ function seededRng(seed: number): () => number {
 	let s = seed >>> 0;
 	return () => {
 		s = (s * 1664525 + 1013904223) >>> 0;
-		return s / 0xffffffff;
+		return s / 0x100000000;
 	};
 }
 
@@ -400,7 +400,7 @@ export function runE91(opts: RunE91Opts): E91Result {
 		// Lossy channel: drop the round entirely with prob 1 - eta^2.
 		if (scenario.id === 'lossy') {
 			const eta = scenario.lossEta;
-			if (rng() > eta * eta) continue;
+			if (rng() >= eta * eta) continue;
 		}
 		effectiveRounds++;
 
@@ -489,7 +489,7 @@ export function runE91(opts: RunE91Opts): E91Result {
 	for (let i = 0; i < keyAlice.length; i++) {
 		if (keyAlice[i] === keyBob[i]) matches++;
 	}
-	const keyAgreement = keyAlice.length ? matches / keyAlice.length : 0;
+	const keyAgreement = keyAlice.length ? matches / keyAlice.length : Number.NaN;
 
 	const verdict = computeVerdict(sCi95Lo, sCi95Hi, stats.some(c => c.n === 0), scenario.id);
 

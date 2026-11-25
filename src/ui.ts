@@ -411,7 +411,7 @@ function resultToCsv(r: E91Result): string {
 			? 'below-classical-bound'
 			: 'inconclusive';
 	lines.push(`bell_test_outcome,${bellTestOutcome}`);
-	lines.push(`key_agreement,${r.keyAgreement}`);
+	lines.push(`key_agreement,${Number.isFinite(r.keyAgreement) ? r.keyAgreement : ''}`);
 	lines.push(`key_agreement_expected,${r.expectedKeyAgreement}`);
 	lines.push('');
 	lines.push('# correlations');
@@ -576,9 +576,10 @@ function renderKey(r: E91Result): string {
 			`<span class="bit-cell ${match ? 'bit-cell--match' : 'bit-cell--miss'}">${r.keyBitsAlice[i]}</span>`,
 		);
 	}
-	const agreementPct = (r.keyAgreement * 100).toFixed(2);
+	const hasKeyBits = r.keyBitsAlice.length > 0;
+	const agreement = hasKeyBits ? `${(r.keyAgreement * 100).toFixed(2)}%` : 'unobserved';
 	const expectedPct = (r.expectedKeyAgreement * 100).toFixed(2);
-	const statusClass =
+	const statusClass = !hasKeyBits ? 'scenario-status--pending' :
 		r.keyAgreement > 0.97
 			? 'scenario-status--valid'
 			: r.keyAgreement > 0.9
@@ -589,8 +590,8 @@ function renderKey(r: E91Result): string {
 		<div class="e91-key">
 			<p class="mono-inline">Alice : ${aliceBits}${r.keyBitsAlice.length > show ? '…' : ''}</p>
 			<p class="mono-inline">Bob   : ${bobBits}${r.keyBitsBob.length > show ? '…' : ''}</p>
-			<div class="bit-grid" role="img" aria-label="First ${cells.length} key bits coloured by Alice/Bob agreement; ${agreementPct}% agree.">${cells.join('')}</div>
-			<p class="${statusClass}">Key agreement: <strong>${agreementPct}%</strong> measured · <strong>${expectedPct}%</strong> expected · ${r.keyBitsAlice.length.toLocaleString()} sifted bits.</p>
+			<div class="bit-grid" role="img" aria-label="${hasKeyBits ? `First ${cells.length} key bits coloured by Alice/Bob agreement; ${agreement} agree.` : 'No sifted key bits to compare.'}">${cells.join('')}</div>
+			<p class="${statusClass}">Key agreement: <strong>${agreement}</strong>${hasKeyBits ? ' measured' : ' (no bits to compare)'} · <strong>${expectedPct}%</strong> expected · ${r.keyBitsAlice.length.toLocaleString()} sifted bits.</p>
 			<p class="section-footnote">In the ideal model, the singlet gives anti-correlated outcomes at the shared key setting — Bob flips his bits and they agree exactly. Intercept-resend, depolarizing noise, and analyzer misalignment each degrade agreement. These displayed bits have not undergone reconciliation, privacy amplification or a finite-key security proof.</p>
 		</div>
 	`;

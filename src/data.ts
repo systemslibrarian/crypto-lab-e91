@@ -137,9 +137,9 @@ export const PROTOCOL_STEPS: ProtocolStep[] = [
 	},
 	{
 		step: 2,
-		title: 'Independent random measurements',
+		title: 'Choose the measurement settings',
 		detail:
-			"For every pair, Alice independently chooses an analyzer angle from her set and Bob independently chooses from his. Each records a +1 or −1 outcome. Neither side controls the other's setting.",
+			"The simulator assigns each detected pair to a key round or a CHSH test with equal probability. On key rounds both use 45°. On test rounds Alice and Bob independently choose between their two test angles. Each records a +1 or −1 outcome.",
 	},
 	{
 		step: 3,
@@ -271,7 +271,7 @@ export const SCENARIO_COPY: Record<ScenarioId, ScenarioCopy> = {
 		knob: {
 			label: 'Detection efficiency η',
 			field: 'lossEta',
-			min: 0.2,
+			min: 0,
 			max: 1,
 			step: 0.05,
 			unit: '',

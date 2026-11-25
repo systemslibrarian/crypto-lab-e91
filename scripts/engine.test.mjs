@@ -268,6 +268,9 @@ test('missing Bell observations are unobserved and inconclusive, not compromised
   ]) {
     const r = runE91(opts);
     assert.equal(r.verdict.classification, 'inconclusive');
+    assert.equal(r.keyBitsAlice.length, 0);
+    assert.ok(Number.isNaN(r.keyAgreement));
+    assert.equal(r.expectedKeyAgreement, 1);
     assert.deepEqual([r.sCi95Lo, r.sCi95Hi], [-4, 4]);
     assert.deepEqual([r.verdict.absSCi95Lo, r.verdict.absSCi95Hi], [0, 4]);
     assert.match(r.verdict.detail, /unobserved|missing/i);

@@ -527,11 +527,15 @@ test('sparse supported lossy run is inconclusive and all confidence displays agr
 });
 
 test('unobserved settings show full bounds and never a fabricated CHSH estimate', async ({ page }) => {
-  // eta=0 is an API/hash boundary, outside the slider minimum .2.
+  // The zero-efficiency slider endpoint is also reproducible by shared URL.
   const s = await run(page, '#s=lossy&r=1000&seed=1&lossEta=0');
   expect(s.headline).toBe('Inconclusive');
   expect(s.summary).toContain('unobserved');
   expect(s.detail).toContain('Missing settings');
+  await expect(page.locator('#scenario-knob')).toHaveValue('0');
+  expect(s.keyLine).toContain('unobserved');
+  expect(s.keyLine).toContain('100.00% expected');
+  expect(s.bitGridLabel).toBe('No sifted key bits to compare.');
   expect(s.sideChsh).toContain('|S| measured = unobserved');
   expect(s.sideChsh).toContain('95% CI for |S| = [0.000, 4.000]');
   expect(s.gauge).toContain('|S| = unobserved, 95% CI [0.000, 4.000]');
@@ -547,6 +551,8 @@ test('unobserved settings show full bounds and never a fabricated CHSH estimate'
   await page.locator('#e91-copy-csv').click();
   await expect(page.locator('#e91-copy-csv')).toContainText('CSV copied');
   const csv = await page.evaluate(() => navigator.clipboard.readText());
+  expect(csv).toContain('key_agreement,\n');
+  expect(csv).toContain('key_agreement_expected,1\n');
   expect(csv).toContain('S_measured,\n');
   expect(csv).toContain('S_stderr,\n');
   expect(csv).toContain('S_ci95_lo,-4');
@@ -781,6 +787,7 @@ test('the explainer matches the engine: curve points, protocol steps, comparison
     'This simulator assumes an ideal source and fair sampling',
   );
   const steps = page.locator('.proto-list .proto-step');
+  await expect(steps.nth(1)).toContainText('On key rounds both use 45°');
   await expect(steps.nth(2)).toContainText('assigns each round to a shared 45° key setting');
   await expect(steps.nth(3)).toContainText('neither outcome alone proves key security');
   await expect(steps.nth(4)).toContainText('candidate sifted bits');
