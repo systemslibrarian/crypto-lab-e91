@@ -123,7 +123,7 @@ export const BELL_CONCEPTS: ConceptCard[] = [
 	{
 		title: 'Noise and misalignment look similar',
 		body:
-			'In a real experiment, a missing 2√2 is not by itself proof of an eavesdropper — depolarizing noise or analyzer misalignment also lowers |S|. The lesson is that a Bell test answers a precise statistical question, not a binary one. Scenarios in the next section make this concrete.',
+			'In a real experiment, a missing 2√2 is not by itself proof of an eavesdropper — depolarizing noise or analyzer misalignment also lowers |S|. The lesson is that a Bell test answers a precise statistical question, not a binary one. Rotating Bob’s analyzer changes the measurement orientation. In a quantum-dot source, fine-structure splitting can instead change the relative phase of the emitted state. The simulator models analyzer rotation and leaves that source effect outside the model.',
 	},
 ];
 

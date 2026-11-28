@@ -205,13 +205,14 @@ function renderRunProtocol(initial: RunState): { node: HTMLElement; api: RunPane
 			</label>
 			<label>
 				<span>Random seed</span>
-				<input type="number" id="e91-seed" min="0" max="99999" step="1" value="${initial.seed}" />
+				<input type="number" id="e91-seed" aria-describedby="e91-seed-note" min="0" max="99999" step="1" value="${initial.seed}" />
 			</label>
 			<label class="e91-toggle">
 				<input type="checkbox" id="e91-transcript" ${initial.transcriptEnabled ? 'checked' : ''} />
 				<span>Show round-by-round transcript (first ${TRANSCRIPT_CAP})</span>
 			</label>
 		</div>
+		<p class="section-footnote" id="e91-seed-note">The seed lets you replay a simulation. A physical Bell test requires measurement settings chosen independently of the source and any hidden variables. A reproducible seed cannot certify that independence.</p>
 		<div class="e91-actions">
 			<button id="e91-run" class="tab-button" type="button">Run E91</button>
 			<button id="e91-copy-link" class="copy-chip" type="button">🔗 Copy link to this run</button>
